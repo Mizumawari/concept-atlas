@@ -1,0 +1,645 @@
+# Notebook 概念アトラス（みずまわり）の設定。汎用エンジン concept-atlas の実例。
+title = "Notebook 概念アトラス"
+input = "corpus"
+output = "dist"
+id_pattern = "SRC_\\d{3}"
+primary_category = "一次資料"
+html_mode = "app"
+summaries = "summaries.tsv"
+root_label = "（Notebook 直下）"
+
+[ext_categories]
+".py" = "解析スクリプト"
+".js" = "解析スクリプト"
+".json" = "解析データ"
+".txt" = "解析データ"
+".md" = "解析データ"
+
+[catalog]
+file = "catalog.tsv"
+label = "note"
+
+[title_overrides]
+SRC_150 = "夢の記憶は「夢見モード」でないと思い出せないのか（対話）"
+
+[[categories]]
+prefix = "research_corpus/00_indexes/"
+label = "索引"
+
+[[categories]]
+prefix = "research_corpus/01_original_sources/"
+label = "一次資料"
+
+[[categories]]
+prefix = "research_corpus/02_metadata/"
+label = "メタデータ"
+
+[[categories]]
+prefix = "research_corpus/03_synthesis/"
+label = "統合モデル"
+
+[[categories]]
+prefix = "research_corpus/04_experiments/"
+label = "監査・実験"
+
+[[categories]]
+prefix = "research_corpus/05_book_project/"
+label = "書籍プロジェクト"
+
+[[categories]]
+prefix = "research_corpus/06_book_manuscript/"
+label = "書籍原稿"
+
+[[categories]]
+prefix = "research_corpus/07_english_medium_articles/"
+label = "英語記事 (Medium)"
+
+[[categories]]
+prefix = "research_corpus/07_notebooklm_materials/"
+label = "コーパス基盤"
+
+[[categories]]
+prefix = "research_corpus/08_note_articles/"
+label = "note記事"
+
+[[categories]]
+prefix = "research_corpus/09_recent_note_corpus/"
+label = "note記事"
+
+[[categories]]
+prefix = "research_corpus/10_note_backfill/"
+label = "note記事"
+
+[[categories]]
+prefix = "research_corpus/"
+label = "コーパス基盤"
+
+[[themes]]
+id = "body"
+label = "身体・生理"
+
+[[themes]]
+id = "sleep"
+label = "睡眠・覚醒"
+
+[[themes]]
+id = "cog"
+label = "認知・脳・予測"
+
+[[themes]]
+id = "con"
+label = "意識・自己感覚"
+
+[[themes]]
+id = "psy"
+label = "心理・感情"
+
+[[themes]]
+id = "life"
+label = "社会・人生・思想"
+
+[[themes]]
+id = "prac"
+label = "実践・方法"
+
+[[themes]]
+id = "music"
+label = "音楽・創作"
+
+[[concepts]]
+label = "身体感覚"
+theme = "body"
+pattern = "身体感覚|体感|内受容|interocept"
+
+[[concepts]]
+label = "緊張・力み"
+theme = "body"
+pattern = "緊張|力み|張力|tension"
+
+[[concepts]]
+label = "脱力・緩める"
+theme = "body"
+pattern = "脱力|リラックス|緩め|緩む|緩み|relax"
+
+[[concepts]]
+label = "呼吸"
+theme = "body"
+pattern = "呼吸|breath"
+
+[[concepts]]
+label = "横隔膜"
+theme = "body"
+pattern = "横隔膜|diaphragm"
+
+[[concepts]]
+label = "姿勢・重心"
+theme = "body"
+pattern = "姿勢|重心|posture"
+
+[[concepts]]
+label = "腹部・腹圧"
+theme = "body"
+pattern = "腹圧|腹部|丹田|下腹|abdom"
+
+[[concepts]]
+label = "体幹"
+theme = "body"
+pattern = "体幹|torso|胴体"
+
+[[concepts]]
+label = "深層筋・筋膜"
+theme = "body"
+pattern = "深層筋|筋膜|fascia|deep muscle"
+
+[[concepts]]
+label = "骨盤・胸郭"
+theme = "body"
+pattern = "骨盤|胸郭|pelvi"
+
+[[concepts]]
+label = "前面／後面モデル"
+theme = "body"
+pattern = "前面|後面|背面"
+
+[[concepts]]
+label = "循環・血流"
+theme = "body"
+pattern = "循環|血流|毛細血管|capillar|circulat"
+
+[[concepts]]
+label = "スポンジ・拍動モデル"
+theme = "body"
+pattern = "スポンジ|拍動|sponge|pulse"
+
+[[concepts]]
+label = "心拍"
+theme = "body"
+pattern = "心拍|heart rate"
+
+[[concepts]]
+label = "自律神経"
+theme = "body"
+pattern = "自律神経|交感神経|副交感|迷走神経|autonomic|vagal"
+
+[[concepts]]
+label = "収束と拡散"
+theme = "body"
+pattern = "収束|拡散|converg|diffus"
+
+[[concepts]]
+label = "寒冷・サウナ"
+theme = "body"
+pattern = "寒冷|冷水|サウナ|ヴィム|ホフ|cold exposure|sauna"
+
+[[concepts]]
+label = "周天・内部の熱"
+theme = "body"
+pattern = "周天|内部の熱"
+
+[[concepts]]
+label = "CSF（脳脊髄液）"
+theme = "body"
+pattern = "CSF|脳脊髄液"
+
+[[concepts]]
+label = "虚圧・充実感"
+theme = "body"
+pattern = "虚圧|充実感"
+
+[[concepts]]
+label = "鳩尾・会陰"
+theme = "body"
+pattern = "鳩尾|みぞおち|会陰"
+
+[[concepts]]
+label = "頸椎・脊柱"
+theme = "body"
+pattern = "頚椎|頸椎|脊柱|背骨|胸椎"
+
+[[concepts]]
+label = "代謝・血糖・食事"
+theme = "body"
+pattern = "血糖|代謝|1日1食|一日一食|カロリー|LDL|断食|空腹"
+
+[[concepts]]
+label = "覚醒"
+theme = "sleep"
+pattern = "覚醒|arousal|wakeful"
+
+[[concepts]]
+label = "睡眠・短眠"
+theme = "sleep"
+pattern = "睡眠|短眠|ショートスリープ|short sleep|sleep"
+
+[[concepts]]
+label = "断眠"
+theme = "sleep"
+pattern = "断眠|徹夜"
+
+[[concepts]]
+label = "眠気・睡眠圧"
+theme = "sleep"
+pattern = "眠気|睡眠圧|sleep pressure"
+
+[[concepts]]
+label = "あくび"
+theme = "sleep"
+pattern = "あくび|欠伸|yawn"
+
+[[concepts]]
+label = "カフェイン・アデノシン"
+theme = "sleep"
+pattern = "カフェイン|アデノシン|caffeine|adenosine|コーヒー"
+
+[[concepts]]
+label = "疲労・回復"
+theme = "sleep"
+pattern = "疲労|回復力|身体回復|疲れ|fatigue|recovery"
+
+[[concepts]]
+label = "血と神"
+theme = "sleep"
+pattern = "血と神|血・神|血／神|blood (?:&|and) spirit"
+
+[[concepts]]
+label = "DMN"
+theme = "cog"
+pattern = "DMN|デフォルトモード"
+
+[[concepts]]
+label = "RAS"
+theme = "cog"
+pattern = "RAS|網様体"
+
+[[concepts]]
+label = "サリエンス (SN)"
+theme = "cog"
+pattern = "サリエンス|salience|\\bSN\\b"
+
+[[concepts]]
+label = "予測・予測誤差"
+theme = "cog"
+pattern = "予測誤差|予測|predict"
+
+[[concepts]]
+label = "反芻・自己参照ループ"
+theme = "cog"
+pattern = "反芻|自己参照|再帰|ループ|rumina"
+
+[[concepts]]
+label = "ノイズ"
+theme = "cog"
+pattern = "ノイズ|noise"
+
+[[concepts]]
+label = "ゲイン"
+theme = "cog"
+pattern = "ゲイン|\\bgain"
+
+[[concepts]]
+label = "注意・集中"
+theme = "cog"
+pattern = "注意資源|注意の|集中力|集中状態|\\battention"
+
+[[concepts]]
+label = "神経可塑性"
+theme = "cog"
+pattern = "可塑性|plasticity"
+
+[[concepts]]
+label = "ADHD・薬理"
+theme = "cog"
+pattern = "ADHD|治療薬|コンサータ|ストラテラ|メチルフェニデート"
+
+[[concepts]]
+label = "ドーパミン"
+theme = "cog"
+pattern = "ドーパミン|dopamin"
+
+[[concepts]]
+label = "脳キャンセル"
+theme = "cog"
+pattern = "脳キャンセル"
+
+[[concepts]]
+label = "物語化・意味づけ"
+theme = "cog"
+pattern = "物語化|意味づけ|意味付け|物語"
+
+[[concepts]]
+label = "PNSE"
+theme = "con"
+pattern = "PNSE|持続的非象徴"
+
+[[concepts]]
+label = "俺フィルター"
+theme = "con"
+pattern = "俺フィルター"
+
+[[concepts]]
+label = "自己物語・自己感"
+theme = "con"
+pattern = "自己物語|自己感|自我|self-narrat|sense of self"
+
+[[concepts]]
+label = "悟り・覚者"
+theme = "con"
+pattern = "悟り|覚者|独覚|無為|解脱|涅槃|enlighten"
+
+[[concepts]]
+label = "瞑想・マインドフルネス"
+theme = "con"
+pattern = "瞑想|マインドフルネス|坐禅|座禅|meditat|mindful"
+
+[[concepts]]
+label = "静寂・基底状態"
+theme = "con"
+pattern = "静寂|基底|常態|凪|baseline"
+
+[[concepts]]
+label = "フロー・没入"
+theme = "con"
+pattern = "フロー|没入|flow state|immers"
+
+[[concepts]]
+label = "明晰・クリア"
+theme = "con"
+pattern = "明晰|クリアさ|クリアな|clarity"
+
+[[concepts]]
+label = "修行・阿闍梨"
+theme = "con"
+pattern = "阿闍梨|修行|作務|行者"
+
+[[concepts]]
+label = "現実感・リアリティ"
+theme = "con"
+pattern = "現実感|リアリティ|実在|as real"
+
+[[concepts]]
+label = "何もしない"
+theme = "con"
+pattern = "何もしない"
+
+[[concepts]]
+label = "観察・観照"
+theme = "con"
+pattern = "観照|観察"
+
+[[concepts]]
+label = "常駐と即応"
+theme = "con"
+pattern = "常駐|即応|イベント駆動"
+
+[[concepts]]
+label = "所有感・主体感"
+theme = "con"
+pattern = "所有感|主体感|やっている感|自分がやっている"
+
+[[concepts]]
+label = "不安"
+theme = "psy"
+pattern = "不安|anxiety"
+
+[[concepts]]
+label = "感情・情動"
+theme = "psy"
+pattern = "感情|情動|emotion"
+
+[[concepts]]
+label = "欲求・快不快"
+theme = "psy"
+pattern = "欲求|快不快|快楽|快感|不快|desire|pleasure"
+
+[[concepts]]
+label = "ストレス"
+theme = "psy"
+pattern = "ストレス|stress"
+
+[[concepts]]
+label = "苦の構造"
+theme = "psy"
+pattern = "苦が|苦は|苦を|苦の構造|苦の成立|成立しにくい配置|苦しみ|苦しさ"
+
+[[concepts]]
+label = "解離・離人感"
+theme = "psy"
+pattern = "解離|離人"
+
+[[concepts]]
+label = "他者・社会性"
+theme = "life"
+pattern = "他者|社会性|対人|社会生活|\\bsocial"
+
+[[concepts]]
+label = "倫理"
+theme = "life"
+pattern = "倫理|ethic"
+
+[[concepts]]
+label = "AI"
+theme = "life"
+pattern = "\\bAI\\b|ＡＩ|LLM|NotebookLM"
+
+[[concepts]]
+label = "価値・非対称性"
+theme = "life"
+pattern = "価値の非対称|非対称|価値観|価値判断|\\bvalue"
+
+[[concepts]]
+label = "人生の運用"
+theme = "life"
+pattern = "人生の運用|人生|生き方|\\blife\\b"
+
+[[concepts]]
+label = "真理・哲学"
+theme = "life"
+pattern = "真理|永井均|哲学|清水俊史|\\btruth|philosoph"
+
+[[concepts]]
+label = "仏教・東洋思想"
+theme = "life"
+pattern = "仏教|仏陀|ブッダ|論語|道教|禅|Buddh"
+
+[[concepts]]
+label = "現れ・枠組み"
+theme = "life"
+pattern = "立ち現れ|現れ方|枠組み|framework|appearance"
+
+[[concepts]]
+label = "中央と辺境"
+theme = "life"
+pattern = "中央と辺境|辺境"
+
+[[concepts]]
+label = "行動開始・着手"
+theme = "prac"
+pattern = "行動開始|着手|初動|行動の立ち上が|始動|initiat"
+
+[[concepts]]
+label = "訓練・トレーニング"
+theme = "prac"
+pattern = "訓練|トレーニング|練習|筋トレ|training|practice"
+
+[[concepts]]
+label = "継続・初期投資"
+theme = "prac"
+pattern = "継続|習慣|初期投資|habit"
+
+[[concepts]]
+label = "身体操作"
+theme = "prac"
+pattern = "身体操作|身体の操作|身体を操作|ゼロ誤差|微調整"
+
+[[concepts]]
+label = "書籍・出版"
+theme = "prac"
+pattern = "書籍|出版|原稿|manuscript|chapter"
+
+[[concepts]]
+label = "音楽・音響"
+theme = "music"
+pattern = "音楽|音響|楽曲|ビート|BPM|music|acoustic"
+
+[[concepts]]
+label = "Suno・プロンプト"
+theme = "music"
+pattern = "Suno|SUNO|プロンプト|prompt"
+
+[[concepts]]
+label = "Neural Mantra"
+theme = "music"
+pattern = "Neural Mantra|ニューラル|マントラ|mantra"
+
+[[concepts]]
+label = "リズム・身体同期"
+theme = "music"
+pattern = "リズム|同期|rhythm|synchron"
+
+[[relations]]
+type = "same"
+shape = "ring"
+title = "DMNの沈静化 ＝「俺フィルター」の解除 ＝ PNSE的状態"
+desc = "神経層のDMN低下は、主観では「自分がどう思うか」という自己物語が差し込まれない状態として現れ、それが続いた結果がPNSEと呼ばれる状態になる。"
+src = "research_corpus/00_indexes/RELATIONSHIPS.md"
+nodes = ["DMN", "俺フィルター", "PNSE", "自己物語・自己感"]
+
+[[relations]]
+type = "same"
+shape = "ring"
+title = "前面の力み・構え ＝ 予測誤差の立ち上がり ＝ 不安"
+desc = "不安は単独では存在せず、身体前面への意識の偏りや力みと常にセットになっている。心理の問題を身体のベクトルとして説明する。"
+src = "research_corpus/00_indexes/RELATIONSHIPS.md"
+nodes = ["前面／後面モデル", "緊張・力み", "予測・予測誤差", "不安"]
+
+[[relations]]
+type = "same"
+shape = "ring"
+title = "低カロリー・血糖安定 ＝ RASの過剰駆動の抑制"
+desc = "糖質のスパイクがRASを強制的に立ち上げるため、代謝をフラットにすることが「精神的な静寂」の基盤をハードウェア側で支える。"
+src = "research_corpus/00_indexes/RELATIONSHIPS.md"
+nodes = ["代謝・血糖・食事", "RAS", "静寂・基底状態"]
+
+[[relations]]
+type = "dev"
+shape = "chain"
+title = "内部緊張の解除 →「常態」としての静寂基底"
+desc = "姿勢・重心・腹圧の調整で身体の微細なノイズを消す技術を得たことで、行為に依存しない静寂（PNSE）の常態化へつながった。"
+src = "research_corpus/00_indexes/RELATIONSHIPS.md"
+nodes = ["緊張・力み", "姿勢・重心", "腹部・腹圧", "静寂・基底状態", "PNSE"]
+
+[[relations]]
+type = "dev"
+shape = "chain"
+title = "行為への没入（フロー）→ 状態から常態（OS）への移行"
+desc = "長距離ドライブなどの没入でDMNを抑える段階から、行為をやめても戻らない「常態」の書き換えを重視する段階へ移った。"
+src = "research_corpus/00_indexes/TIMELINE.md"
+nodes = ["フロー・没入", "身体操作", "静寂・基底状態"]
+
+[[relations]]
+type = "dev"
+shape = "fan"
+title = "神経基底モデル → 宗教・ADHD・倫理・AIの再解釈"
+desc = "DMN/RASの静寂化というモデルを外に応用し、悟り・独覚、ADHDや薬の作用、倫理とAIの学習までを「神経モデルのパラメータの違い」として説明し直す。"
+src = "research_corpus/00_indexes/RELATIONSHIPS.md"
+nodes = ["DMN", "RAS", "悟り・覚者", "仏教・東洋思想", "ADHD・薬理", "倫理", "AI"]
+
+[[relations]]
+type = "res"
+shape = "res"
+title = "フロー と PNSE：どちらも自己が消えるが構造が違う"
+desc = "フローはRASを高めてDMNを強制的に遮断する高エネルギー状態。PNSEはRASもDMNもベースラインが下がった低コスト状態。段階的な移行として統合される。"
+src = "research_corpus/00_indexes/RELATIONSHIPS.md"
+nodes = ["フロー・没入", "PNSE", "RAS", "DMN"]
+
+[[relations]]
+type = "res"
+shape = "res"
+title = "瞑想（心理的介入）と 身体の張力解除（身体的介入）"
+desc = "心を心で整える介入は評価と自己監視を伴いDMNを駆動させる。身体の張力を物理的に解く介入は物語を伴わずRASのゲインを下げる。レイヤーの違いで矛盾が解ける。"
+src = "research_corpus/00_indexes/RELATIONSHIPS.md"
+nodes = ["瞑想・マインドフルネス", "身体操作", "DMN", "ゲイン"]
+
+[[relations]]
+type = "claim"
+shape = "star"
+title = "自己感は実体ではなく、複数の力の収束で生じる一時的現象"
+desc = "注意の収束、評価の発生、身体的な力みが重なって「私」が出力される。確信度は本人の体感として極めて高い。"
+src = "research_corpus/00_indexes/CORE_CLAIMS.md"
+nodes = ["自己物語・自己感", "注意・集中", "緊張・力み", "俺フィルター", "DMN"]
+
+[[relations]]
+type = "claim"
+shape = "star"
+title = "PNSEは RASの適正化と DMNの非点火で成立する"
+desc = "体感モデルとしての確信度は高いが、神経科学的事実としては仮説の段階。"
+src = "research_corpus/00_indexes/CORE_CLAIMS.md"
+nodes = ["PNSE", "RAS", "DMN", "静寂・基底状態"]
+
+[[relations]]
+type = "claim"
+shape = "star"
+title = "心理的苦痛は身体・生理の基底に依存し、物理的な解除が優先される"
+desc = "内部緊張・代謝リズム・姿勢といった基底が整うと不安や反芻が起きにくくなる。長期の実践と体感変化に基づく主張。"
+src = "research_corpus/00_indexes/CORE_CLAIMS.md"
+nodes = ["不安", "緊張・力み", "代謝・血糖・食事", "姿勢・重心", "反芻・自己参照ループ"]
+
+[[relations]]
+type = "claim"
+shape = "star"
+title = "倫理は生存確率を下げないためのアルゴリズム"
+desc = "倫理や社会規範を絶対的な善悪ではなく、生物・集団としての生存戦略として捉える。AIの学習をめぐる摩擦も同じ構造で相対化する。"
+src = "research_corpus/00_indexes/CORE_CLAIMS.md"
+nodes = ["倫理", "AI", "他者・社会性"]
+
+[[relations]]
+type = "model"
+shape = "star"
+title = "毛細血管スポンジモデルと拍動同期"
+desc = "身体を毛細血管のスポンジとして捉え、呼吸ではなく拍動に合わせて深層がまとまることで、摩擦を減らす形で緩む。緩みと覚醒は両立する。"
+src = "research_corpus/03_synthesis/sponge_pulsation_body_model.md"
+nodes = ["スポンジ・拍動モデル", "脱力・緩める", "循環・血流", "心拍", "呼吸", "覚醒"]
+
+[[relations]]
+type = "model"
+shape = "star"
+title = "固まる・広がる・中間の3状態と人生の運用コスト"
+desc = "中間状態は容量が大きいのではなく維持費が低い。起きている時間と回復が単純な対立ではなくなり、人生のフェーズで最適化対象が変わる。"
+src = "research_corpus/03_synthesis/body_loosening_and_life_operation_model.md"
+nodes = ["スポンジ・拍動モデル", "睡眠・短眠", "疲労・回復", "覚醒", "人生の運用"]
+
+[[relations]]
+type = "model"
+shape = "star"
+title = "基底の覚醒感とカフェイン・アデノシン"
+desc = "基底に持続する充足した覚醒感があると、カフェインで覚醒感がほとんど増えない。眠気・疲労と苦痛が一体化しなくなり、外部刺激による昂りとは別の現象として扱う。"
+src = "research_corpus/03_synthesis/baseline_wakefulness_caffeine_adenosine_model.md"
+nodes = ["カフェイン・アデノシン", "覚醒", "眠気・睡眠圧", "疲労・回復", "ドーパミン", "静寂・基底状態"]
+
+[[relations]]
+type = "model"
+shape = "star"
+title = "深層筋膜の収束と拡散（呼吸・自律神経・寒冷・覚醒）"
+desc = "2026年10月の note 群。深層筋膜の収束と拡散を、呼吸とは別の身体内部の動きとして扱い、サウナ・冷水やヴィム・ホフとの比較、周天とも結びつける。SRC_276 では、頭部の充実感を会陰へ移して頭側を「虚圧化」させ、眠気を切り替える操作と、脳脊髄液の「余白」仮説に展開している。"
+src = "research_corpus/01_original_sources/SRC_272〜274, SRC_276"
+nodes = ["収束と拡散", "深層筋・筋膜", "呼吸", "自律神経", "寒冷・サウナ", "周天・内部の熱", "CSF（脳脊髄液）", "眠気・睡眠圧"]

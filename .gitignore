@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.atlas/
+work/
+dist/
+!examples/notebook/dist/
+.DS_Store

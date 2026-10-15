@@ -1,0 +1,129 @@
+somatic_kizu_power_pad_178: {
+        influence: "80%",
+        weirdness: "30%",
+        bpm: "178 BPM",
+        duration: "3:30 - 4:15",
+        vocal: "High-Energy Catchy J-Rock Vocal (Punchy Melodic Punk Style, Urgent Shouts, Playful Medical Chants & Huge Gang Choruses)",
+        mechanism: "【キズパワーパッド・湿潤療法アンセム】「消毒するな！乾かすな！かさぶたを作るな！」ハイドロコロイド（モイストヒーリング）の生体治癒メカニズムを、178BPMの超快感ポップパンクと触覚的トランジェントで完全音楽化。露出した痛点（神経終末）が、ゲルパッドの真空密着（ペタッ・45Hzサブ低音）で一瞬にして痛覚遮断されるカタルシスを音響再現。滲出液を吸って白くプクッと膨らむ細胞遊走プロセスを、キャッチー極まるサビとコール＆レスポンスで昇華する。",
+        title: `キズパワーパッドの歌 〜モイストヒーリング・完全密着の奇跡〜 (178BPM ハイパー・ポップパンク × 白くふくらむ生体ゲル × 痛覚遮断音響)`,
+        style: `hyper-somatic pop-punk, 178 BPM, blistering energetic J-rock riff, punchy driving bassline, hyper-tactile sticky hydrocolloid clicks at 4kHz, tight bone-dry snare crack, massive 45Hz sub drop on seal, ultra-catchy anime battle vocal hook, call-and-response shouts, visceral biological healing sound FX, zero muddy reverb, pristine kinetic pop mastering`,
+        lyrics: `[Intro: Emergency Somatic Alarm - 激痛のサイレン]
+[Sound FX: Slip, Fall, Scraped Knee on Asphalt]
+(イッターーーーッ！！ 擦りむいた！ 血がにじむ！)
+[Blistering 178 BPM Fast Drum Roll into Punchy Pop-Punk Riff]
+[Bass: Driving 8th-note distortion]
+[Voice: Urgent Loud Medical Warning]
+待て！ 消毒液を吹きかけるな！
+赤チン塗るな！ ガーゼを貼るな！
+時代は変わった！ 乾かすな！
+(キ・ズ・パ・ワー・パッ・ド！)
+
+[Verse 1: The Outdated Myth - 昭和の常識をぶっ壊せ]
+[High-Speed Pop-Punk Strumming: Ultra-Tight Chug]
+[Male Lead: Energetic Fast Delivery]
+「痛いの痛いの飛んでいけ」じゃ治らない
+消毒液は　戦う自分の細胞まで殺しちゃう！
+ガーゼを貼ったら　剥がすとき地獄！
+かさぶた作ったら　跡が残る！
+[Drums Stop - Single Rim Click at 4kHz]
+じゃあどうする！？
+[Female Chorus:] 水道水で泥を洗え！
+[Band Slams Back in:] そして水気を拭き取ったら――
+いざ召喚！ 完全密着セカンドスキン！
+
+[Pre-Chorus: The Golden Ritual - 密閉の儀式]
+[Bassline: Melodic Octave Drive with Warm 45Hz Lock]
+[Synthesizer: Sparkling Arpeggio like Biological Fluid]
+キズ口からジュワッと溢れる
+透明な液体（滲出液）！
+それは身体が自ら分泌した
+最高級の自己治癒スープ！
+逃すな！ 閉じ込めろ！
+体温で温めてから――
+[Sudden Vacuum Stop: -inf dB Cut for 300ms]
+[Tactile Sound FX: Ultra-Sticky Hermetic "PETAH!" Click]
+(ペタッ！！)
+[Sub-bass Drop: Deep 45Hz Hug]
+(……あれ？ 痛みが……消えた！？)
+
+[Chorus: The Hydrocolloid Anthem - 白くふくらめ！]
+[Full Overdrive Explosion: 178 BPM Ultra-Catchy J-Rock Chorus]
+[Lead Vocal + Massive Gang Vocal]
+白くふくらめ！ キズパワーパッド！
+(プクプク！ プクプク！)
+自分のチカラで　治していくんだ！
+空気を遮断！ 神経ガード！
+痛くない！ 滲みない！ お風呂も平気！
+完全防水！ 剥がれない！
+(モイスト・ヒーリング！)
+第二の皮膚が　傷口を抱きしめる！
+白くポッコリ膨らんだら　治ってる合図だ！
+
+[Verse 2: The Secret of White Capsule - 白いゼリーの正体]
+[Fast Bouncy Rhythm: Half-time Punk Groove with Funky Slap Bass]
+翌朝見たら　真ん中が白くブヨブヨ！
+(えっ！？ これ化膿！？ うみ！？ 腐ったの！？)
+違う違う！ 慌てて剥がすな！
+ハイドロコロイド粒子が
+治癒成分を吸い込んで
+ゲル状のクッションになっただけ！
+細胞たちがぬくぬく培養中！
+(生体クッション完成！ おさえても痛くない！)
+
+[Pre-Chorus 2: The Cell Highway - 細胞の遊走]
+[Fast 16th-note Hi-Hats: 4kHz Crisp Ticks]
+[Dual Vocal Harmony]
+乾いた砂漠じゃ細胞は動けない
+潤った海の中でこそ
+新しい表皮が　ツルツルと伸びていく！
+数日間　貼りっぱなしでいい！
+信じて待て！ 身体のオートポイエーシス！
+[Drum Build-Up: Rapid Snare Crescendo]
+いっくぞーーーーっ！！
+
+[Chorus 2: Maximum Kinetic Jump - 治癒力の限界突破]
+[Massive Drop: Full Band Blast with Blistering Twin Leads]
+白くふくらめ！ キズパワーパッド！
+(プクプク！ プクプク！)
+かさぶたバイバイ！ 跡を残さない！
+膝小僧も　指先も　靴擦れも！
+守り抜くんだ　生体のシールド！
+貼るだけで　治癒スピード倍速！
+(モイスト・ヒーリング！)
+奇跡のテクノロジー　ポケットに忍ばせろ！
+
+[Guitar Solo: Blistering Dual Melodic Post-Punk Solos]
+[High-Speed Tapping & Whammy Bar Dive]
+[Rhythm Section: Relentless 178 BPM Punk Drive]
+
+[Bridge: The Moment of Peeling - 運命の剥離式]
+[Tempo remains steady: Acoustic Guitar & Quiet Bass Pulse]
+[Lead Voice: Whispering Anticipation]
+端っこを少しめくって
+皮膚と平行に　ゆっくりと引っ張る……
+(ペリ……ペリ……ペリ……)
+[Sudden High Crystalline Chime at 6kHz]
+見てくれよこれ……！
+かさぶたなんて　どこにもない！
+生まれたての　ピンク色の新しい肌！
+(ツルッツルやぞ！！)
+
+[Final Chorus: The Grand Celebration - 完全上皮化の賛歌]
+[Full Band Overdrive: Confetti Cannon Sound + Maximum Energy]
+ありがとう！ キズパワーパッド！
+(完全勝利！ 完全治癒！)
+傷口はもう　跡形もない！
+転んでもいい！ また立ち上がれ！
+僕らにはこの　最強の味方がいる！
+(プ・ク・プ・ク・モイスト！)
+白くふくらんだ奇跡のゲルよ！
+永遠に称えよ　キズパワーパッド！
+
+[Outro: Final Pop-Punk Chug]
+[Fast Triple Snare Hits]
+乾かすな！
+消毒するな！
+貼って治せ！
+[Final Tactile Click: Ultra-Sticky "PETAH!"]
+[End]`
+    },

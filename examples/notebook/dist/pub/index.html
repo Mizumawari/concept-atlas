@@ -1,0 +1,1373 @@
+<title>Notebook 概念アトラス</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<style>
+/* Layout: one-screen instrument. A 3D "inner space" canvas fills the stage; thin glass panels float over it.
+   Single deliberate dark look (deep water / ink), sand accent, eight pigment hues for the eight domains. */
+:root{
+  --bg:#0a1219; --bg2:#0f1a23; --panel:rgba(14,24,32,.88); --panel-solid:#101c26;
+  --line:#22323e; --line2:#2e4250; --fg:#e7e2d7; --fg2:#b9b6ad; --muted:#7f8e99;
+  --accent:#e6c88f; --accent-ink:#1b1408;
+  --t-0:#e0896a; --t-1:#86a3ea; --t-2:#62c2b3; --t-3:#c4a0ec;
+  --t-4:#e5c264; --t-5:#9ccd78; --t-6:#cfc8ba; --t-7:#ee8db3; --t-none:#6d7a84;
+  --f-display:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
+  --f-body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+  --r:10px;
+  --r-same:#f3efe6; --r-dev:#e6c88f; --r-res:#8fc8ff; --r-claim:#d6b3ff; --r-model:#86dfc4;
+  color-scheme:dark;
+}
+html,body{height:100%;max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:14px;line-height:1.6;overflow:hidden}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#app{height:100%;display:flex;flex-direction:column}
+
+/* top bar */
+.bar{display:flex;align-items:center;gap:14px 18px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--bg2);position:relative;z-index:5}
+.brand{display:flex;align-items:baseline;gap:10px;min-width:0}
+.brand h1{font-family:var(--f-display);font-weight:700;font-size:20px;margin:0;letter-spacing:.04em;white-space:nowrap}
+.brand .stats{font-family:var(--f-mono);font-size:11px;color:var(--muted);white-space:nowrap}
+.tabs{display:flex;gap:2px;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:3px}
+.tabs button{border:0;background:transparent;padding:4px 14px;border-radius:999px;cursor:pointer;color:var(--fg2);font-size:13px}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink);font-weight:700}
+.search{margin-left:auto;display:flex;align-items:center;gap:8px;flex:1 1 220px;max-width:380px;min-width:0}
+.search input{width:100%;background:var(--bg);border:1px solid var(--line2);border-radius:999px;padding:6px 14px;outline:none}
+.search input:focus{border-color:var(--accent)}
+.clear{border:1px solid var(--line2);background:transparent;border-radius:999px;padding:4px 10px;font-size:12px;color:var(--fg2);cursor:pointer;white-space:nowrap}
+.filters-on{display:flex;gap:6px;flex-wrap:wrap;padding:6px 16px;border-bottom:1px solid var(--line);background:var(--bg2);font-size:12px;align-items:center}
+.filters-on .lbl{color:var(--muted)}
+.fchip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line2);border-radius:999px;padding:1px 4px 1px 10px;background:var(--bg)}
+.fchip button{border:0;background:transparent;cursor:pointer;color:var(--muted);padding:0 6px}
+
+main{flex:1;position:relative;min-height:0}
+.view{position:absolute;inset:0}
+
+/* map */
+#stage{position:absolute;inset:0;display:block;width:100%;height:100%;cursor:grab;touch-action:none}
+#stage:active{cursor:grabbing}
+#labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.lb{position:absolute;left:0;top:0;white-space:nowrap;transform-origin:0 0;will-change:transform;font-size:11.5px;color:var(--fg2);text-shadow:0 0 4px var(--bg),0 0 8px var(--bg);padding-left:8px}
+.lb.theme{font-family:var(--f-display);font-weight:700;font-size:17px;color:var(--fg);letter-spacing:.06em;padding-left:14px}
+.lb.cat{font-family:var(--f-display);font-size:15px;color:var(--accent)}
+.lb.doc{font-size:11px;color:var(--fg);max-width:260px;overflow:hidden;text-overflow:ellipsis}
+.lb.doc.sel{font-size:13px;font-weight:700;color:var(--accent)}
+.lb.dim{opacity:.18}
+#tip{position:absolute;pointer-events:none;background:var(--panel-solid);border:1px solid var(--line2);border-radius:8px;padding:6px 10px;font-size:12px;max-width:300px;z-index:4}
+#tip .k{font-family:var(--f-mono);font-size:10.5px;color:var(--muted)}
+
+.ctrl{position:absolute;left:16px;top:14px;width:248px;background:var(--panel);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:12px;z-index:3;max-height:calc(100% - 28px);overflow:auto}
+.ctrl h2,.sec-h{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 6px;font-weight:500;font-family:var(--f-mono)}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:2px}
+.seg button{border:0;background:transparent;padding:4px 0;border-radius:6px;font-size:12px;cursor:pointer;color:var(--fg2)}
+.seg button[aria-pressed="true"]{background:var(--line2);color:var(--fg)}
+.toggles{display:flex;flex-direction:column;gap:4px;font-size:12.5px}
+.toggles label{display:flex;align-items:center;gap:8px;cursor:pointer}
+.toggles .sw{width:18px;height:2px;border-radius:2px;display:inline-block}
+.legend{display:flex;flex-direction:column;gap:2px}
+.legend button{display:flex;align-items:center;gap:8px;border:0;background:transparent;padding:3px 6px;margin:0 -6px;border-radius:6px;cursor:pointer;text-align:left;font-size:12.5px;color:var(--fg2)}
+.legend button:hover{background:var(--bg)}
+.legend button[aria-pressed="true"]{background:var(--line);color:var(--fg)}
+.legend .n{margin-left:auto;font-family:var(--f-mono);font-size:10.5px;color:var(--muted)}
+.dot{width:9px;height:9px;border-radius:50%;flex:none;display:inline-block}
+.sel-wrap select{width:100%;background:var(--bg);border:1px solid var(--line2);border-radius:6px;padding:4px 6px;font-size:12.5px}
+.sec-h .sw{display:inline-block;width:16px;height:2px;border-radius:2px;vertical-align:middle;margin-right:8px}
+.rlist{display:flex;flex-direction:column;gap:1px}
+.rlist button{display:flex;align-items:baseline;gap:8px;border:0;background:transparent;padding:3px 6px;margin:0 -6px;border-radius:6px;cursor:pointer;text-align:left;font-size:12px;line-height:1.45;color:var(--fg2)}
+.rlist button:hover{background:var(--bg);color:var(--fg)}
+.rlist button[aria-pressed="true"]{background:var(--line);color:var(--fg)}
+.rlist .rs{flex:none;width:14px;height:2px;border-radius:2px;transform:translateY(-3px)}
+.rgroup{font-size:10.5px;color:var(--muted);margin:6px 0 2px;letter-spacing:.06em}
+.rcard{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;background:var(--bg2);min-width:0;display:flex;flex-direction:column;gap:6px;cursor:pointer;text-align:left;color:var(--fg)}
+.rcard:hover{border-color:var(--line2)}
+.rcard .rt{font-family:var(--f-display);font-weight:700;font-size:15px;line-height:1.45;text-wrap:balance}
+.rcard .rd{font-size:12.5px;color:var(--fg2)}
+.rtype{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+.hint{font-size:11px;color:var(--muted);line-height:1.5}
+.ctrl-toggle{display:none}
+
+/* detail */
+#detail{position:absolute;right:16px;top:14px;bottom:14px;width:min(400px,calc(100% - 32px));background:var(--panel);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:var(--r);z-index:6;display:flex;flex-direction:column;min-height:0}
+#detail .dh{display:flex;align-items:center;gap:8px;padding:10px 12px 0 16px}
+#detail .close{margin-left:auto;border:0;background:transparent;font-size:20px;line-height:1;cursor:pointer;color:var(--muted);padding:4px 8px}
+#detail .body{overflow:auto;padding:4px 16px 18px;display:flex;flex-direction:column;gap:14px;min-height:0}
+.kicker{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.08em;color:var(--muted)}
+.d-title{font-family:var(--f-display);font-weight:700;font-size:19px;line-height:1.45;margin:0;text-wrap:balance}
+.meta{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;font-size:12px}
+.meta dt{color:var(--muted)}
+.meta dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.mono{font-family:var(--f-mono);font-size:11.5px}
+a{color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line2);background:var(--bg);border-radius:999px;padding:1px 10px;font-size:12px;cursor:pointer;color:var(--fg)}
+.chip:hover{border-color:var(--accent)}
+.chip .w{font-family:var(--f-mono);font-size:10px;color:var(--muted)}
+.tag{display:inline-block;border-radius:4px;padding:0 6px;font-size:11px;background:var(--line);color:var(--fg2);white-space:nowrap}
+.kw{font-size:12px;color:var(--fg2)}
+.heads{margin:0;padding-left:1.2em;font-size:12.5px;color:var(--fg2);display:flex;flex-direction:column;gap:2px}
+.preview{font-size:13px;line-height:1.85;color:var(--fg2);max-width:65ch;overflow-wrap:anywhere;display:flex;flex-direction:column;gap:8px}
+.preview p{margin:0}
+.preview table,.r-body table{border-collapse:collapse;font-size:12.5px;margin:2px 0}
+.preview td,.r-body td{border:1px solid var(--line2);padding:3px 8px;vertical-align:top}
+.preview tr:first-child td,.r-body tr:first-child td{color:var(--fg);font-weight:500;background:var(--bg)}
+.tbl-x{overflow-x:auto;max-width:100%}
+.preview .flow,.r-body .flow{margin:0;padding-left:10px;border-left:2px solid var(--line2);color:var(--fg)}
+.preview .flow.tree,.r-body .flow.tree{font-family:var(--f-mono);border-left:0;padding-left:0;white-space:pre;line-height:1.5;font-size:12.5px;overflow-x:auto}
+.preview strong{color:var(--fg);font-weight:700}
+.ytcard{display:flex;align-items:center;gap:12px;align-self:flex-start;max-width:100%;border:1px solid var(--line2);border-radius:10px;padding:8px 14px 8px 10px;background:var(--bg);color:var(--fg);text-decoration:none;font-size:12.5px;line-height:1.4}
+.ytcard:hover{border-color:#d9776a}
+.ytcard .yp{display:grid;place-items:center;width:30px;height:22px;border-radius:6px;background:#c8463a;color:#fff;font-size:11px;flex:none}
+.ytcard b{display:block;font-weight:700}
+.ytcard .yid{display:block;font-family:var(--f-mono);font-size:10.5px;color:var(--muted)}
+.ytcard .yx{color:var(--muted);margin-left:4px}
+.preview .ytcard{margin:2px 0}
+.ytrow{display:flex;flex-wrap:wrap;gap:8px}
+.nlist .yl{flex:none;margin-left:auto;color:#e58b80;font-size:11px;text-decoration:none;padding:0 4px}
+mark{background:rgba(230,200,143,.3);color:inherit;border-radius:2px;padding:0 1px}
+.readbtn{cursor:pointer}
+.preview.clickable{cursor:pointer;border-radius:8px;margin:0 -8px;padding:6px 8px}
+.preview.clickable:hover{background:var(--bg)}
+/* reader */
+#reader{position:fixed;inset:0;z-index:20;background:rgba(4,9,13,.74);backdrop-filter:blur(4px);display:grid;place-items:center;padding:14px 16px}
+.r-panel{width:min(840px,100%);height:100%;background:var(--panel-solid);border:1px solid var(--line2);border-radius:12px;display:flex;flex-direction:column;min-height:0;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.r-head{display:flex;align-items:center;gap:10px;padding:10px 12px 10px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.r-head .kicker{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r-head select{background:var(--bg);border:1px solid var(--line2);border-radius:6px;padding:3px 6px;font-size:12px;max-width:min(320px,60vw)}
+.r-scroll{overflow:auto;padding:22px clamp(16px,5vw,56px) 80px;min-height:0;flex:1}
+.r-body{max-width:38em;margin:0 auto;font-size:15px;line-height:2;color:var(--fg2);display:flex;flex-direction:column;gap:14px}
+.r-body h1{font-family:var(--f-display);font-size:24px;line-height:1.5;color:var(--fg);margin:0;text-wrap:balance}
+.r-body h4{font-family:var(--f-display);font-size:17.5px;line-height:1.55;color:var(--fg);margin:18px 0 0;text-wrap:balance}
+.r-body p{margin:0}
+.r-body ul{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:4px}
+.r-body strong{color:var(--fg);font-weight:700}
+.r-body .flow{font-size:14px}
+.r-note{font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;margin-top:10px}
+.preview h4{margin:6px 0 0;font-size:13px;font-weight:700;color:var(--fg);font-family:var(--f-body)}
+.preview ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:2px}
+.preview .more{color:var(--muted);font-size:12px}
+.flags{display:flex;flex-wrap:wrap;gap:6px}
+.flag{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:1px 10px;font-size:11.5px;border:1px solid var(--line2);color:var(--fg2)}
+.flag.note{border-color:#5fbf9a;color:#9fe0c4}
+.flag.warn{border-color:#d9a04a;color:#f0c27a}
+a.flag{text-decoration:none}
+a.flag:hover{background:var(--bg)}
+td .ntag{display:inline-block;margin-left:6px;font-size:10.5px;border-radius:4px;padding:0 5px;border:1px solid #5fbf9a;color:#9fe0c4;vertical-align:1px}
+td .wtag{display:inline-block;margin-left:6px;font-size:10.5px;border-radius:4px;padding:0 5px;border:1px solid #d9a04a;color:#f0c27a;vertical-align:1px}
+.nlist{display:flex;flex-direction:column;gap:2px;max-height:420px;overflow:auto;font-size:12.5px}
+.nlist a{display:flex;gap:10px;color:var(--fg);text-decoration:none;padding:3px 6px;margin:0 -6px;border-radius:6px}
+.nlist a:hover{background:var(--bg)}
+.nlist .d{font-family:var(--f-mono);font-size:11px;color:var(--muted);flex:none}
+.stat-row{display:flex;flex-wrap:wrap;gap:18px 28px;margin:0 0 12px}
+.stat-row div{display:flex;flex-direction:column}
+.stat-row b{font-family:var(--f-mono);font-size:20px;font-weight:500;font-variant-numeric:tabular-nums}
+.stat-row span{font-size:11.5px;color:var(--muted)}
+.rel{display:flex;flex-direction:column;gap:2px}
+.rel button{display:flex;align-items:baseline;gap:8px;text-align:left;border:0;background:transparent;padding:4px 6px;margin:0 -6px;border-radius:6px;cursor:pointer;color:var(--fg);font-size:12.5px;line-height:1.45}
+.rel button:hover{background:var(--bg)}
+.rel .s{margin-left:auto;font-family:var(--f-mono);font-size:10px;color:var(--muted);flex:none}
+.rel .t{min-width:0}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.btn{border:1px solid var(--line2);background:var(--bg);border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+.bars{display:flex;flex-direction:column;gap:3px}
+.bars button{display:grid;grid-template-columns:minmax(0,1fr) 80px 28px;gap:8px;align-items:center;border:0;background:transparent;padding:2px 6px;margin:0 -6px;border-radius:6px;cursor:pointer;text-align:left;font-size:12.5px;color:var(--fg)}
+.bars button:hover{background:var(--bg)}
+.bars i{display:block;height:5px;border-radius:3px}
+.bars .n{font-family:var(--f-mono);font-size:10.5px;color:var(--muted);text-align:right}
+
+/* list */
+#view-list{display:flex;flex-direction:column;overflow:hidden}
+.list-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
+.list-tools select{background:var(--bg2);border:1px solid var(--line2);border-radius:6px;padding:4px 8px;font-size:12.5px;max-width:100%}
+.list-tools .count{margin-left:auto;font-family:var(--f-mono);font-size:11.5px;color:var(--muted)}
+.tbl-wrap{flex:1;overflow:auto;padding:0 16px 24px}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:13px}
+th{position:sticky;top:0;background:var(--bg);text-align:left;font-weight:500;font-size:11px;letter-spacing:.06em;color:var(--muted);padding:10px 8px;border-bottom:1px solid var(--line2);z-index:1}
+td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+tr.row{cursor:pointer}
+tr.row:hover td{background:var(--bg2)}
+tr.row.on td{background:#16242f}
+td .tt{font-weight:500;line-height:1.5}
+td .ex{font-size:12px;color:var(--muted);line-height:1.55;margin-top:2px;overflow-wrap:anywhere}
+td .pp{font-family:var(--f-mono);font-size:10.5px;color:var(--muted);overflow-wrap:anywhere}
+td.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:11.5px;color:var(--fg2);white-space:nowrap}
+td .mini{display:flex;flex-wrap:wrap;gap:4px}
+td .mini span{font-size:11px;border-radius:999px;padding:0 7px;border:1px solid var(--line2);white-space:nowrap}
+
+/* index */
+#view-index{overflow:auto;padding:20px 16px 40px}
+.idx-intro{max-width:70ch;color:var(--fg2);margin:0 0 18px;font-size:13px}
+.idx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.idx-col{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;background:var(--bg2);min-width:0}
+.idx-col h3{font-family:var(--f-display);font-size:17px;margin:0 0 8px;display:flex;align-items:center;gap:8px}
+.idx-col h3 .n{margin-left:auto;font-family:var(--f-mono);font-size:11px;color:var(--muted);font-weight:400}
+.folders{margin-top:22px}
+.folders h2{font-family:var(--f-display);font-size:18px;margin:0 0 10px}
+.d-sum{margin:0;color:var(--fg2);font-size:13.5px;line-height:1.7;border-left:2px solid var(--accent);padding:2px 0 2px 10px}
+#tip .s{color:var(--fg2);font-size:11.5px;line-height:1.55;margin-top:4px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+/* timeline */
+#view-time{overflow:auto;padding:20px 16px 48px}
+.tl-h{font-family:var(--f-display);font-size:18px;margin:26px 0 8px;font-weight:700}
+.tl-h small{font-family:var(--f-body);font-weight:400;font-size:12px;color:var(--muted);margin-left:8px}
+.tl-legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--fg2);margin:0 0 12px}
+.tl-legend span{display:inline-flex;align-items:center;gap:6px}
+.tl-legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.tl-scroll{overflow-x:auto;padding-bottom:6px}
+.tl-chart{display:flex;align-items:flex-end;gap:6px;min-width:min-content;padding-top:4px}
+.tl-col{flex:1 0 46px;max-width:90px;display:flex;flex-direction:column;align-items:stretch;gap:4px;background:none;border:0;padding:4px 3px;border-radius:8px;color:var(--fg);cursor:pointer;font:inherit}
+.tl-col:hover{background:var(--bg2)}
+.tl-col[aria-pressed="true"]{background:var(--bg2);box-shadow:inset 0 0 0 1px var(--accent)}
+.tl-col .n{font-family:var(--f-mono);font-size:11px;color:var(--fg2);text-align:center}
+.tl-col .stack{height:190px;display:flex;flex-direction:column-reverse;gap:1px}
+.tl-col .stack i{display:block;border-radius:2px;min-height:2px}
+.tl-col .stack i.nn{background:repeating-linear-gradient(135deg,#55626c 0 3px,#3a4650 3px 6px)}
+.tl-col .m{font-family:var(--f-mono);font-size:10.5px;color:var(--muted);text-align:center;line-height:1.3}
+.tl-col .m b{display:block;color:var(--fg2);font-weight:500;font-size:11.5px}
+.tl-heat{border-collapse:separate;border-spacing:2px;font-size:12px;min-width:min-content}
+.tl-heat th{font-weight:400;text-align:left;white-space:nowrap;padding:0 8px 0 0;position:sticky;left:0;background:var(--bg);z-index:1}
+.tl-heat th button{background:none;border:0;color:var(--fg2);font:inherit;cursor:pointer;padding:2px 0;display:inline-flex;align-items:center;gap:6px}
+.tl-heat th button:hover{color:var(--fg)}
+.tl-heat thead th{font-family:var(--f-mono);font-size:10.5px;color:var(--muted);text-align:center;padding:0 0 4px}
+.tl-heat thead th:first-child{text-align:left}
+.tl-heat td{width:40px;min-width:40px;height:24px;border-radius:3px;text-align:center;font-family:var(--f-mono);font-size:10.5px;color:var(--fg);cursor:pointer;background:var(--bg2)}
+.tl-heat td.z{color:transparent;cursor:default}
+.tl-heat td.on{box-shadow:inset 0 0 0 1px var(--accent)}
+.tl-month{display:flex;flex-direction:column;gap:2px;max-width:900px}
+.tl-item{display:grid;grid-template-columns:86px 1fr;gap:2px 12px;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:10px 6px;color:var(--fg);font:inherit;cursor:pointer;text-decoration:none;border-radius:4px}
+.tl-item:hover{background:var(--bg2)}
+.tl-item .dt{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);padding-top:2px}
+.tl-item .tt{font-size:14px;line-height:1.5;display:flex;gap:8px;align-items:baseline}
+.tl-item .tt .dot{flex:none;transform:translateY(-1px)}
+.tl-item .sm{grid-column:2;font-size:12.5px;color:var(--fg2);line-height:1.6}
+.tl-item .mt{grid-column:2;font-family:var(--f-mono);font-size:10.5px;color:var(--muted)}
+.tl-item.nn .tt{color:var(--fg2)}
+
+@media (max-width:760px){
+  /* header: title + tabs on one row, search below */
+  .bar{padding:8px 12px;gap:8px 10px}
+  .brand h1{font-size:15.5px;letter-spacing:0}
+  .brand .stats{display:none}
+  .tabs{margin-left:auto}
+  .tabs button{padding:4px 9px;font-size:12px}
+  .search{order:3;max-width:none;flex-basis:100%}
+  .search input{padding:6px 12px}
+  /* iOS zooms into any form field under 16px and stays zoomed: keep fields at 16px */
+  input,select,textarea{font-size:16px!important}
+  .list-tools select,.sel-wrap select,.r-head select{padding:5px 8px}
+  .fchip{max-width:100%;min-width:0}
+  .fchip .fl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+  .fchip button{flex:none}
+  .filters-on{padding:6px 12px}
+  /* map controls: a small floating button until opened */
+  .ctrl{left:12px;right:12px;top:10px;width:auto;max-height:60%;padding:10px 12px}
+  .ctrl.collapsed{left:auto;right:12px;width:auto;padding:4px;background:var(--panel);gap:0}
+  .ctrl.collapsed .ctrl-head h2{display:none}
+  .ctrl.collapsed>*:not(.ctrl-head){display:none}
+  .ctrl-toggle{display:inline-block}
+  .lb{font-size:10px}
+  .lb.theme{font-size:14px}
+  #tip{display:none}
+  /* detail: bottom sheet */
+  #detail{top:auto;left:0;right:0;bottom:0;width:auto;height:min(64%,560px);border-radius:14px 14px 0 0;border-bottom:0;padding-bottom:env(safe-area-inset-bottom,0px)}
+  #detail.tall{height:calc(100% - 8px)}
+  #detail .dh{padding:4px 10px 0 16px}
+  .sheet-handle{display:block}
+  #detail .body{padding:4px 16px 24px}
+  /* list: cards instead of a wide table */
+  .list-tools{padding:10px 12px;gap:8px}
+  .list-tools select{flex:1 1 44%;min-width:0}
+  .list-tools .count{flex-basis:100%;margin-left:0}
+  .tbl-wrap{padding:0 12px 24px}
+  table{min-width:0}
+  thead{display:none}
+  tr.row{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:12px 0;border-bottom:1px solid var(--line)}
+  tr.row td{display:block;border:0;padding:0;background:none!important}
+  tr.row td:nth-child(1){grid-column:1;grid-row:1}
+  tr.row td:nth-child(1) .pp{display:inline;margin-left:6px}
+  tr.row td:nth-child(3){grid-column:2;grid-row:1;text-align:right}
+  tr.row td:nth-child(2){grid-column:1 / -1;grid-row:2}
+  tr.row td:nth-child(4){grid-column:1 / -1;grid-row:3}
+  tr.row td:nth-child(5){display:none}
+  tr.row.on{background:var(--bg2)}
+  /* index */
+  #view-index{padding:16px 12px 40px}
+  #view-time{padding:16px 12px 48px}
+  .tabs button{padding:4px 7px}
+  .tl-col{flex:0 0 40px}
+  .tl-col .stack{height:150px}
+  .tl-item{grid-template-columns:1fr;padding:10px 2px}
+  .tl-item .sm,.tl-item .mt{grid-column:1}
+  .tl-heat th{max-width:9em;overflow:hidden;text-overflow:ellipsis}
+  /* reader: full screen */
+  #reader{padding:0}
+  .r-panel{border-radius:0;border:0}
+  .r-scroll{padding:16px 18px 80px}
+  .r-body{font-size:15px;line-height:1.95}
+  .r-body h1{font-size:21px}
+}
+.sheet-handle{display:none;width:44px;height:5px;border-radius:3px;background:var(--line2);margin:8px auto 0;border:0;padding:0;cursor:pointer}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div id="app">
+  <header class="bar">
+    <div class="brand"><h1 id="atlasTitle">概念アトラス</h1><span class="stats" id="stats"></span></div>
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tab-map" aria-selected="true" data-view="map">マップ</button>
+      <button role="tab" id="tab-list" aria-selected="false" data-view="list">一覧</button>
+      <button role="tab" id="tab-time" aria-selected="false" data-view="time">年表</button>
+      <button role="tab" id="tab-index" aria-selected="false" data-view="index">概念索引</button>
+    </div>
+    <div class="search"><input id="q" type="search" placeholder="タイトル・本文・概念で検索（例: あくび, PNSE, 周天）" autocomplete="off"></div>
+  </header>
+  <div class="filters-on" id="fbar" hidden></div>
+  <main>
+    <section class="view" id="view-map">
+      <canvas id="stage" aria-label="資料と概念の3Dマップ"></canvas>
+      <div id="loading" style="position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:13px;letter-spacing:.08em;z-index:2">資料を読み込んでいます…</div>
+      <div id="labels"></div>
+      <div id="tip" hidden></div>
+      <div class="ctrl" id="ctrl">
+        <div class="ctrl-head" style="display:flex;align-items:center;justify-content:space-between">
+          <h2 style="margin:0">配置</h2>
+          <button class="btn ctrl-toggle" id="ctrlToggle" aria-expanded="true">たたむ</button>
+        </div>
+        <div class="seg" id="layoutSeg">
+          <button aria-pressed="true" data-layout="net">概念網</button>
+          <button aria-pressed="false" data-layout="spiral" id="spiralBtn">番号・日付順</button>
+          <button aria-pressed="false" data-layout="cat">分類別</button>
+        </div>
+        <div class="hint" id="layoutHint"></div>
+        <div>
+          <h2>リンク</h2>
+          <div class="toggles">
+            <label><input type="checkbox" id="lkC" checked> <span class="sw" style="background:var(--fg2)"></span>資料 → 主要概念</label>
+            <label><input type="checkbox" id="lkS"> <span class="sw" style="background:var(--accent)"></span>本文の類似</label>
+            <label class="need-id"><input type="checkbox" id="lkR"> <span class="sw" style="background:var(--t-2)"></span>ID 参照</label>
+            <label class="need-rel"><input type="checkbox" id="lkK" checked> <span class="sw" style="background:linear-gradient(90deg,var(--r-same),var(--r-dev),var(--r-res),var(--r-model))"></span>整理済みの関係（弧）</label>
+          </div>
+        </div>
+        <div>
+          <h2>領域（色）</h2>
+          <div class="legend" id="legend"></div>
+        </div>
+        <div class="need-rel">
+          <h2>整理済みの関係</h2>
+          <div class="rlist" id="relList"></div>
+        </div>
+        <div class="sel-wrap">
+          <h2>分類（フォルダ）</h2>
+          <select id="catSel"></select>
+        </div>
+        <div class="hint">ドラッグで回転、ホイール／ピンチで拡大。点をクリックすると詳細と関連が開きます。</div>
+      </div>
+    </section>
+
+    <section class="view" id="view-list" hidden>
+      <div class="list-tools">
+        <select id="lCat" aria-label="分類"></select>
+        <select id="lCon" aria-label="概念"></select>
+        <select id="lFlag" aria-label="状態">
+          <option value="">すべての状態</option>
+          <option value="note" class="need-cat" id="optNote">公開記事と紐づけ済み</option>
+          <option value="nonote" class="need-cat" id="optNoNote">公開記事と未紐づけ</option>
+          <option value="cut">末尾が途中で切れている可能性</option>
+          <option value="chat">AI対話の前置きを除去したもの</option>
+          <option value="nodate">日付が分からないもの</option>
+        </select>
+        <select id="lSort" aria-label="並び順">
+          <option value="src">番号・日付順</option>
+          <option value="date">日付の新しい順</option>
+          <option value="title">タイトル順</option>
+          <option value="size">分量の多い順</option>
+          <option value="cat">分類順</option>
+        </select>
+        <span class="count" id="lCount"></span>
+      </div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th style="width:118px">分類</th><th>タイトル / パス</th><th style="width:92px">日付</th><th style="width:270px">主要概念</th><th style="width:70px">分量</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table></div>
+    </section>
+
+    <section class="view" id="view-time" hidden>
+      <p class="idx-intro" id="tlIntro"></p>
+      <div class="tl-legend" id="tlLegend"></div>
+      <div class="tl-scroll"><div class="tl-chart" id="tlChart" role="group" aria-label="月ごとの資料数"></div></div>
+      <h2 class="tl-h">概念の推移<small>よく出てくる概念 × 月。数字はその月の資料数。行名で絞り込み、マスでその月を開きます</small></h2>
+      <div class="tl-scroll"><table class="tl-heat" id="tlHeat"></table></div>
+      <h2 class="tl-h" id="tlMonthH"></h2>
+      <div class="tl-month" id="tlMonth"></div>
+    </section>
+
+    <section class="view" id="view-index" hidden>
+      <p class="idx-intro">本文から拾った <span id="nCon"></span> の概念を <span id="nTheme"></span> つの領域に分けています。数字はその概念が出てくる資料の数です。概念を選ぶと、詳しく扱っている資料と、よく一緒に出てくる概念が開きます。</p>
+      <div class="idx-grid" id="idxGrid"></div>
+      <div class="folders">
+        <h2>データの状態</h2>
+        <div class="stat-row" id="statRow"></div>
+        <p class="idx-intro need-cat">資料は <span class="cl"></span> の公開記事（全 <span id="nTotal"></span> 本）と、本文の書き出しまたはタイトルで照合しています。タイトルの類似だけで結んだものは「推定」と表示します。下の一覧は、手元に本文が見つからなかった公開記事です。</p>
+        <div class="idx-grid">
+          <div class="idx-col need-cat"><h3 style="font-size:15px">本文未収録の <span class="cl"></span> 記事<span class="n" id="nUnCount"></span></h3><div class="nlist" id="nUnList"></div></div>
+          <div class="idx-col"><h3 style="font-size:15px">要確認：末尾が途中で切れている可能性<span class="n" id="cutCount"></span></h3><div class="rel" id="cutList"></div></div>
+        </div>
+      </div>
+      <div class="folders need-rel">
+        <h2>整理済みの関係</h2>
+        <p class="idx-intro">設定ファイル（relations）に書かれた、概念同士の関係です。マップ上では概念をつなぐ弧で表示しています。根拠資料は、その関係の概念を 2 つ以上含む資料を自動で拾ったものです。</p>
+        <div class="idx-grid" id="relGrid"></div>
+      </div>
+      <div class="folders">
+        <h2>フォルダ構成</h2>
+        <div class="idx-grid" id="folderGrid"></div>
+      </div>
+    </section>
+
+    <aside id="detail" hidden aria-live="polite">
+      <button class="sheet-handle" id="sheetHandle" aria-label="パネルを広げる・戻す"></button>
+      <div class="dh"><span class="kicker" id="dKicker"></span><button class="close" id="dClose" aria-label="閉じる">×</button></div>
+      <div class="body" id="dBody"></div>
+    </aside>
+  </main>
+</div>
+
+<script type="application/json" id="data"></script>
+<script type="application/json" id="texts"></script>
+<div id="reader" hidden role="dialog" aria-modal="true" aria-labelledby="rTitle">
+  <div class="r-panel">
+    <div class="r-head"><span class="kicker" id="rKicker"></span><select id="rToc" aria-label="見出しへ移動" hidden></select><button class="close" id="rClose" aria-label="閉じる">×</button></div>
+    <div class="r-scroll" id="rScroll"><article class="r-body"><h1 id="rTitle"></h1><div class="flags" id="rFlags"></div><div id="rText" style="display:flex;flex-direction:column;gap:14px"></div><p class="r-note" id="rNote"></p></article></div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+// Load web fonts after first paint so text shows immediately in fallback faces.
+(function(){const l=document.createElement('link');l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap';document.head.appendChild(l);})();
+(function(){
+function boot(DATA){
+"use strict";
+const ld=document.getElementById('loading'); if(ld) ld.hidden=true;
+const {themes, concepts, docs} = DATA;
+const META = DATA.meta||{};
+const PRIMARY = META.primary||'一次資料';
+const CL = META.catalogLabel||'公開記事';
+const HASCAT = (DATA.notes_total||0)>0 || docs.some(d=>d.note);
+const HASREL = (DATA.relations||[]).length>0;
+const HASID = !!META.idPattern || docs.some(d=>d.src);
+{ const t=META.title||'概念アトラス'; document.title=t; const h=document.getElementById('atlasTitle'); if(h) h.textContent=t; }
+document.querySelectorAll('.cl').forEach(e=>e.textContent=CL);
+document.querySelectorAll('.need-cat').forEach(e=>{ if(!HASCAT) e.hidden=true; });
+document.querySelectorAll('.need-rel').forEach(e=>{ if(!HASREL) e.hidden=true; });
+document.querySelectorAll('.need-id').forEach(e=>{ if(!HASID) e.hidden=true; });
+{ const o1=document.getElementById('optNote'), o2=document.getElementById('optNoNote'); if(o1) o1.textContent=`${CL} と紐づけ済み`; if(o2) o2.textContent=`${PRIMARY}で ${CL} 未紐づけ`; if(!HASCAT){ o1&&o1.remove(); o2&&o2.remove(); } }
+{ const b=document.getElementById('spiralBtn'); if(b) b.textContent=HASID?'番号順':'日付順'; const nt=document.getElementById('nTheme'); if(nt) nt.textContent=themes.length; }
+const css = getComputedStyle(document.documentElement);
+const PAL=[0,1,2,3,4,5,6,7].map(i=>css.getPropertyValue('--t-'+i).trim());
+const TCOL = {}; themes.forEach((t,i)=>TCOL[t.id]=t.color||(i<8?PAL[i]:`hsl(${(i*47)%360} 55% 68%)`));
+const REFCOL=PAL[1];
+TCOL.none = css.getPropertyValue('--t-none').trim();
+const BG = css.getPropertyValue('--bg').trim();
+const ACC = css.getPropertyValue('--accent').trim();
+const themeIdx = {}; themes.forEach((t,i)=>themeIdx[t.id]=i);
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- derived data ---------- */
+concepts.forEach(c=>{c.docs=[]; c.co={};});
+docs.forEach(d=>{
+  d.backrefs=[]; d.cset=new Set(d.concepts.map(c=>c[0]));
+  const sc={}; d.concepts.slice(0,6).forEach(([k,w])=>{const t=concepts[k].theme; sc[t]=(sc[t]||0)+w;});
+  let best=null,bv=0; for(const t in sc) if(sc[t]>bv){bv=sc[t];best=t;}
+  d.theme=best;
+  d.srcn = d.src? parseInt(d.src.slice(4),10): null;
+  if(d.blocks && !d.text) d.text=d.blocks.filter(b=>b[0]!=='yt').map(b=>Array.isArray(b[1])?b[1].join(' '):b[1]).join(' ').replace(/\*\*/g,'');
+  d.hay = (d.title+' '+(d.raw_title||'')+' '+(d.note?d.note.title:'')+' '+d.path+' '+(d.text||'')+' '+(d.kw||[]).join(' ')+' '+(d.heads||[]).join(' ')+' '+(d.orig||'')+' '+(d.sum||'')+' '+d.concepts.map(c=>concepts[c[0]].label).join(' ')).toLowerCase();
+  d.concepts.forEach(([k,w,n])=>concepts[k].docs.push([d.id,w,n]));
+  const top=d.concepts.slice(0,6).map(c=>c[0]);
+  for(const a of top) for(const b of top) if(a!==b) concepts[a].co[b]=(concepts[a].co[b]||0)+1;
+});
+docs.forEach(d=>d.refs.forEach(j=>docs[j].backrefs.push(d.id)));
+concepts.forEach(c=>c.docs.sort((a,b)=>b[1]-a[1]));
+const cats = {}; docs.forEach(d=>cats[d.cat]=(cats[d.cat]||0)+1);
+const catOrder = Object.keys(cats).sort((a,b)=>cats[b]-cats[a]);
+const themeCount={}; docs.forEach(d=>{const t=d.theme||'none'; themeCount[t]=(themeCount[t]||0)+1;});
+document.getElementById('nCon').textContent=concepts.length;
+document.getElementById('stats').textContent = `${docs.length} 項目 · ${concepts.length} 概念 · ${themes.length} 領域`;
+
+/* ---------- state ---------- */
+const S = {q:'', cat:'', theme:'', concept:null, flag:'', sel:null, layout:'net', view:'map', links:{c:true,s:false,r:false}};
+function isActive(d){
+  if(S.q && !S.qt.every(t=>d.hay.includes(t))) return false;
+  if(S.cat && d.cat!==S.cat) return false;
+  if(S.theme && (d.theme||'none')!==S.theme) return false;
+  if(S.concept!=null && !d.cset.has(S.concept)) return false;
+  if(S.flag==='note' && !d.note) return false;
+  if(S.flag==='nonote' && (d.note || d.cat!==PRIMARY)) return false;
+  if(S.flag==='cut' && !d.cut) return false;
+  if(S.flag==='chat' && !d.chat) return false;
+  if(S.flag==='nodate' && d.date) return false;
+  return true;
+}
+const anyFilter = ()=> !!(S.q||S.cat||S.theme||S.concept!=null||S.flag);
+
+/* ---------- graph nodes ---------- */
+// node order: themes, concepts, hub, docs
+const NT=themes.length, NC=concepts.length, HUB=NT+NC, D0=HUB+1, N=D0+docs.length;
+const nodeKind = i => i<NT?'theme': i<HUB?'concept': i===HUB?'hub':'doc';
+const radius = new Float32Array(N), charge=new Float32Array(N);
+for(let i=0;i<N;i++){
+  const k=nodeKind(i);
+  if(k==='theme'){radius[i]=13;charge[i]=4;}
+  else if(k==='concept'){const c=concepts[i-NT]; radius[i]=4.5+Math.sqrt(c.df)*0.55; charge[i]=2.2;}
+  else if(k==='hub'){radius[i]=9;charge[i]=3;}
+  else {const d=docs[i-D0]; radius[i]=1.6+Math.log10(Math.max(d.chars||d.size||300,300))*0.9; charge[i]=1;}
+}
+// edges for layout and drawing
+const E_C=[], E_S=[], E_R=[];
+concepts.forEach((c,k)=>E_C.push([NT+k, themeIdx[c.theme], 1]));
+docs.forEach((d,i)=>{
+  if(d.concepts.length){ d.concepts.slice(0,3).forEach(([k,w],r)=>E_C.push([D0+i, NT+k, r===0?1:.55])); }
+  else E_C.push([D0+i, HUB, .8]);
+  d.sim.slice(0,2).forEach(([j,s])=>{ if(i<j || !docs[j].sim.some(x=>x[0]===i)) E_S.push([D0+i, D0+j, s]); });
+  d.refs.forEach(j=>E_R.push([D0+i, D0+j, 1]));
+});
+
+/* ---------- layouts ---------- */
+function fib(n,i,r){const y=1-(i+.5)/n*2, rr=Math.sqrt(1-y*y), th=i*2.399963; return [Math.cos(th)*rr*r, y*r, Math.sin(th)*rr*r];}
+function rnd(seed){let s=seed>>>0||1; return ()=>{s^=s<<13;s^=s>>>17;s^=s<<5;return ((s>>>0)/4294967296);};}
+
+function layoutNet(){
+  const P=new Float32Array(N*3), V=new Float32Array(N*3), pin=new Uint8Array(N), R=rnd(7);
+  const RT=360;
+  for(let t=0;t<NT;t++){const p=fib(NT,t,RT); P.set(p,t*3); pin[t]=1;}
+  P.set([0,-RT*1.25,0],HUB*3); pin[HUB]=1;
+  for(let k=0;k<NC;k++){const t=themeIdx[concepts[k].theme]; for(let a=0;a<3;a++) P[(NT+k)*3+a]=P[t*3+a]*.72+(R()-.5)*120;}
+  docs.forEach((d,i)=>{
+    const n=D0+i; let x=0,y=0,z=0,w=0;
+    if(d.concepts.length){ d.concepts.slice(0,3).forEach(([k,ww])=>{x+=P[(NT+k)*3]*ww;y+=P[(NT+k)*3+1]*ww;z+=P[(NT+k)*3+2]*ww;w+=ww;}); x/=w;y/=w;z/=w; }
+    else {x=P[HUB*3];y=P[HUB*3+1];z=P[HUB*3+2];}
+    P[n*3]=x+(R()-.5)*60;P[n*3+1]=y+(R()-.5)*60;P[n*3+2]=z+(R()-.5)*60;
+  });
+  const springs=[];
+  E_C.forEach(([a,b,w])=>{const k=nodeKind(a)==='concept'?['c']:['d']; springs.push([a,b, k[0]==='c'?110:(nodeKind(b)==='hub'?55:46+ (1-w)*30), k[0]==='c'?.06:.035*w]);});
+  E_S.forEach(([a,b,s])=>springs.push([a,b,40,.012*s]));
+  const IT=240, REP=900;
+  for(let it=0;it<IT;it++){
+    const alpha=1-it/IT*0.85;
+    for(let i=0;i<N;i++){
+      const ix=P[i*3],iy=P[i*3+1],iz=P[i*3+2], ci=charge[i];
+      for(let j=i+1;j<N;j++){
+        let dx=ix-P[j*3],dy=iy-P[j*3+1],dz=iz-P[j*3+2];
+        let d2=dx*dx+dy*dy+dz*dz+16; if(d2>250000) continue;
+        const f=REP*ci*charge[j]/d2/Math.sqrt(d2);
+        dx*=f;dy*=f;dz*=f;
+        V[i*3]+=dx/ci;V[i*3+1]+=dy/ci;V[i*3+2]+=dz/ci;
+        V[j*3]-=dx/charge[j];V[j*3+1]-=dy/charge[j];V[j*3+2]-=dz/charge[j];
+      }
+    }
+    for(const [a,b,L,s] of springs){
+      const dx=P[b*3]-P[a*3],dy=P[b*3+1]-P[a*3+1],dz=P[b*3+2]-P[a*3+2];
+      const d=Math.sqrt(dx*dx+dy*dy+dz*dz)+1e-3, f=(d-L)*s/d;
+      V[a*3]+=dx*f;V[a*3+1]+=dy*f;V[a*3+2]+=dz*f;
+      V[b*3]-=dx*f;V[b*3+1]-=dy*f;V[b*3+2]-=dz*f;
+    }
+    for(let i=0;i<N;i++){
+      if(pin[i]){V[i*3]=V[i*3+1]=V[i*3+2]=0;continue;}
+      for(let a=0;a<3;a++){
+        let v=(V[i*3+a]-P[i*3+a]*.0015)*.55*alpha; if(v>25)v=25; if(v<-25)v=-25;
+        P[i*3+a]+=v; V[i*3+a]=v;
+      }
+    }
+  }
+  return P;
+}
+function placeAbstract(P, inward){
+  // concepts at mean of their docs (pulled toward axis), themes at mean of concepts, hub at mean of loose docs
+  for(let k=0;k<NC;k++){
+    const ds=concepts[k].docs.slice(0,40); let x=0,y=0,z=0,w=0;
+    ds.forEach(([i,ww])=>{x+=P[(D0+i)*3]*ww;y+=P[(D0+i)*3+1]*ww;z+=P[(D0+i)*3+2]*ww;w+=ww;});
+    if(w){P[(NT+k)*3]=x/w*inward;P[(NT+k)*3+1]=y/w;P[(NT+k)*3+2]=z/w*inward;}
+  }
+  for(let t=0;t<NT;t++){
+    let x=0,y=0,z=0,n=0; concepts.forEach((c,k)=>{if(themeIdx[c.theme]===t){x+=P[(NT+k)*3];y+=P[(NT+k)*3+1];z+=P[(NT+k)*3+2];n++;}});
+    const a=t/NT*Math.PI*2; P[t*3]=Math.cos(a)*60+x/n*.3; P[t*3+1]=y/n; P[t*3+2]=Math.sin(a)*60+z/n*.3;
+  }
+  let x=0,y=0,z=0,n=0; docs.forEach((d,i)=>{if(!d.concepts.length){x+=P[(D0+i)*3];y+=P[(D0+i)*3+1];z+=P[(D0+i)*3+2];n++;}});
+  if(n) P.set([x/n*.6,y/n,z/n*.6],HUB*3);
+}
+function layoutSpiral(){
+  const P=new Float32Array(N*3);
+  const order=docs.map((d,i)=>i).sort((a,b)=>{
+    const A=docs[a],B=docs[b];
+    const ka=A.srcn!=null&&A.cat===PRIMARY?A.srcn:1000+(A.date?0:500), kb=B.srcn!=null&&B.cat===PRIMARY?B.srcn:1000+(B.date?0:500);
+    if(ka!==kb) return ka-kb; if((A.date||'')!==(B.date||'')) return (A.date||'')<(B.date||'')?-1:1; return A.cat<B.cat?-1:A.cat>B.cat?1:0;
+  });
+  const n=order.length, H=900;
+  order.forEach((i,r)=>{
+    const a=r*0.33, rad=230+ (r%2)*14;
+    P[(D0+i)*3]=Math.cos(a)*rad; P[(D0+i)*3+1]=-H/2 + r/n*H; P[(D0+i)*3+2]=Math.sin(a)*rad;
+    docs[i].order=r;
+  });
+  placeAbstract(P,.35);
+  return P;
+}
+function layoutCat(){
+  const P=new Float32Array(N*3); const RR=430; catPos={};
+  catOrder.forEach((c,ci)=>{
+    const a=ci/catOrder.length*Math.PI*2, cx=Math.cos(a)*RR, cz=Math.sin(a)*RR;
+    const members=docs.map((d,i)=>i).filter(i=>docs[i].cat===c).sort((x,y)=>(docs[x].srcn||0)-(docs[y].srcn||0));
+    const m=members.length, sp=12;
+    // sunflower disk facing outward (plane spanned by tangent & y)
+    const tx=-Math.sin(a), tz=Math.cos(a);
+    members.forEach((i,r)=>{
+      const rr=Math.sqrt(r+.5)*sp, th=r*2.399963, u=Math.cos(th)*rr, v=Math.sin(th)*rr;
+      P[(D0+i)*3]=cx+tx*u; P[(D0+i)*3+1]=v; P[(D0+i)*3+2]=cz+tz*u;
+    });
+    const top=Math.sqrt(m)*sp+26;
+    catPos[c]=[cx,top,cz];
+  });
+  placeAbstract(P,.25);
+  return P;
+}
+let catPos={};
+
+/* ---------- three.js scene ---------- */
+const canvas=document.getElementById('stage');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setClearColor(new THREE.Color(BG),1);
+const scene=new THREE.Scene();
+scene.fog=new THREE.Fog(new THREE.Color(BG), 900, 2600);
+const camera=new THREE.PerspectiveCamera(48,1,1,6000);
+function homeDist(){
+  // keep roughly a 400-unit radius inside the narrower side of the screen
+  const a=Math.max(.3,(canvas.clientWidth||W||1)/(canvas.clientHeight||H||1));
+  const t=Math.tan(48*Math.PI/360); const hv=t*Math.min(1,a);
+  const d=Math.min(2000,Math.max(980,430/hv)); return isFinite(d)?d:980;
+}
+camera.position.set(0,120,980);
+const controls=new THREE.OrbitControls(camera,canvas);
+controls.enableDamping=true; controls.dampingFactor=.08; controls.rotateSpeed=.6; controls.minDistance=60; controls.maxDistance=2600;
+controls.autoRotate=!matchMedia('(prefers-reduced-motion: reduce)').matches; controls.autoRotateSpeed=.35;
+scene.add(new THREE.HemisphereLight(0xdfe8f0,0x0a1219,.95));
+const dl=new THREE.DirectionalLight(0xffffff,.55); dl.position.set(300,500,600); scene.add(dl);
+
+// faint dust
+{const g=new THREE.BufferGeometry(), n=900, a=new Float32Array(n*3), R=rnd(3);
+ for(let i=0;i<n;i++){const r=700+R()*1400, p=fib(n,i,r); a.set([p[0]+(R()-.5)*200,p[1]+(R()-.5)*200,p[2]+(R()-.5)*200],i*3);}
+ g.setAttribute('position',new THREE.BufferAttribute(a,3));
+ scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0x5f7686,size:2,sizeAttenuation:true,transparent:true,opacity:.5})));}
+
+// glow sprite texture
+const glowTex=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');const g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(255,255,255,.9)');g.addColorStop(.25,'rgba(255,255,255,.35)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(c);})();
+
+const sphereG=new THREE.SphereGeometry(1,20,14);
+const absMeshes=[]; // themes, concepts, hub
+for(let i=0;i<D0;i++){
+  const k=nodeKind(i);
+  const col= k==='theme'?TCOL[themes[i].id]: k==='concept'?TCOL[concepts[i-NT].theme]: TCOL.none;
+  const m=new THREE.Mesh(sphereG,new THREE.MeshLambertMaterial({color:new THREE.Color(col),emissive:new THREE.Color(col),emissiveIntensity:k==='theme'?.55:.35,transparent:true,opacity:1}));
+  m.scale.setScalar(radius[i]); m.userData.node=i;
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:new THREE.Color(col),transparent:true,opacity:k==='theme'?.55:.32,depthWrite:false,blending:THREE.AdditiveBlending}));
+  sp.scale.setScalar(k==='theme'?7.5:5); m.add(sp);
+  scene.add(m); absMeshes.push(m);
+}
+const docMesh=new THREE.InstancedMesh(sphereG,new THREE.MeshLambertMaterial({color:0xffffff}),docs.length);
+docMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+scene.add(docMesh);
+const baseCol=docs.map(d=>new THREE.Color(TCOL[d.theme||'none']));
+const bgCol=new THREE.Color(BG), accCol=new THREE.Color(ACC);
+
+function mkLines(edges, colorFn, opacity){
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.BufferAttribute(new Float32Array(edges.length*6),3));
+  const c=new Float32Array(edges.length*6);
+  edges.forEach((e,i)=>{const [ca,cb]=colorFn(e); c.set([ca.r,ca.g,ca.b,cb.r,cb.g,cb.b],i*6);});
+  g.setAttribute('color',new THREE.BufferAttribute(c,3));
+  const l=new THREE.LineSegments(g,new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity,depthWrite:false,blending:THREE.AdditiveBlending}));
+  l.userData.edges=edges; scene.add(l); return l;
+}
+const nodeColor=i=>{const k=nodeKind(i); return new THREE.Color(k==='theme'?TCOL[themes[i].id]:k==='concept'?TCOL[concepts[i-NT].theme]:k==='hub'?TCOL.none:TCOL[docs[i-D0].theme||'none']);};
+const linesC=mkLines(E_C,e=>[nodeColor(e[0]),nodeColor(e[1])],.16);
+const linesS=mkLines(E_S,()=>[accCol,accCol],.22);
+const linesR=mkLines(E_R,()=>{const c=new THREE.Color(REFCOL);return [c,c];},.2);
+const linesH=new THREE.LineSegments(new THREE.BufferGeometry(),new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:.9,depthWrite:false}));
+linesH.userData.edges=[]; scene.add(linesH);
+
+/* ---------- curated relations (from the corpus indexes) ---------- */
+const RT={
+  same:{label:'異階層の同一現象',col:css.getPropertyValue('--r-same').trim()},
+  dev:{label:'発展・因果',col:css.getPropertyValue('--r-dev').trim()},
+  res:{label:'矛盾と統合',col:css.getPropertyValue('--r-res').trim()},
+  claim:{label:'中核の主張',col:css.getPropertyValue('--r-claim').trim()},
+  model:{label:'最近の統合モデル',col:css.getPropertyValue('--r-model').trim()},
+};
+Object.entries(META.relationTypes||{}).forEach(([k,v])=>{RT[k]={label:v.label||k,col:v.color||(RT[k]&&RT[k].col)||'#d8d2c4'};});
+const RELS=(DATA.relations||[]).map(r=>({shape:'ring',src:'',desc:'',...r,nodes:r.nodes||[]})).filter(r=>RT[r.type]);
+const cIdx={}; concepts.forEach((c,k)=>cIdx[c.label]=k);
+concepts.forEach(c=>c.rels=[]);
+RELS.forEach((r,ri)=>{
+  r.id=ri; r.ks=r.nodes.map(l=>cIdx[l]).filter(k=>k!=null);
+  const k=r.ks, pr=[];
+  if(r.shape==='ring'){ for(let i=0;i<k.length-1;i++) pr.push([k[i],k[i+1]]); if(k.length>2) pr.push([k[k.length-1],k[0]]); }
+  else if(r.shape==='chain'){ for(let i=0;i<k.length-1;i++) pr.push([k[i],k[i+1]]); }
+  else if(r.shape==='fan'){ const f=r.from||1; for(let i=0;i<f;i++) for(let j=f;j<k.length;j++) pr.push([k[i],k[j]]); if(f>1) pr.push([k[0],k[1]]); }
+  else if(r.shape==='res'){ pr.push([k[0],k[1]]); for(let j=2;j<k.length;j++){pr.push([k[j],k[0]]);pr.push([k[j],k[1]]);} }
+  else { for(let j=1;j<k.length;j++) pr.push([k[0],k[j]]); }
+  r.pairs=pr;
+  k.forEach(x=>concepts[x].rels.push(ri));
+  // evidence: documents holding two or more of the relation's concepts among their main concepts
+  r.ev=docs.map(d=>{let n=0,w=0; d.concepts.forEach(([c,ww])=>{if(k.includes(c)){n++;w+=ww;}}); return [d.id,n,w];})
+    .filter(x=>x[1]>=2).sort((a,b)=>b[1]-a[1]||b[2]-a[2]);
+});
+const SEG=12, relSegs=RELS.reduce((a,r)=>a+r.pairs.length,0)*SEG;
+const relGeo=new THREE.BufferGeometry();
+relGeo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(relSegs*6),3));
+relGeo.setAttribute('color',new THREE.BufferAttribute(new Float32Array(relSegs*6),3));
+const linesK=new THREE.LineSegments(relGeo,new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:.95,depthWrite:false}));
+scene.add(linesK);
+function updateRelArcs(){
+  const a=relGeo.attributes.position.array; let o=0;
+  const A=new THREE.Vector3(),B=new THREE.Vector3(),M=new THREE.Vector3(),Q=new THREE.Vector3(),p=new THREE.Vector3(),q=new THREE.Vector3();
+  const bez=(t,out)=>{const u=1-t; out.set(u*u*A.x+2*u*t*M.x+t*t*B.x, u*u*A.y+2*u*t*M.y+t*t*B.y, u*u*A.z+2*u*t*M.z+t*t*B.z);};
+  RELS.forEach((r,ri)=>r.pairs.forEach(([x,y],pi)=>{
+    const i=(NT+x)*3,j=(NT+y)*3; A.set(P[i],P[i+1],P[i+2]); B.set(P[j],P[j+1],P[j+2]);
+    M.addVectors(A,B).multiplyScalar(.5); Q.copy(M); if(Q.lengthSq()<1) Q.set(0,1,0); Q.normalize();
+    // offset parallel arcs of different relations so shared pairs stay distinguishable
+    M.addScaledVector(Q, A.distanceTo(B)*(.22+.06*(ri%4)));
+    for(let s=0;s<SEG;s++){ bez(s/SEG,p); bez((s+1)/SEG,q); a[o++]=p.x;a[o++]=p.y;a[o++]=p.z;a[o++]=q.x;a[o++]=q.y;a[o++]=q.z; }
+  }));
+  relGeo.attributes.position.needsUpdate=true; relGeo.computeBoundingSphere();
+}
+function colorRelArcs(activeRel, activeConcept){
+  const c=relGeo.attributes.color.array; let o=0; const col=new THREE.Color();
+  RELS.forEach((r,ri)=>{
+    const on = activeRel!=null ? ri===activeRel : activeConcept!=null ? r.ks.includes(activeConcept) : true;
+    col.set(RT[r.type].col); if(!on) col.lerp(bgCol,.88);
+    for(let n=0;n<r.pairs.length*SEG*2;n++){c[o++]=col.r;c[o++]=col.g;c[o++]=col.b;}
+  });
+  relGeo.attributes.color.needsUpdate=true;
+}
+
+/* ---------- positions & transitions ---------- */
+const layouts={};
+let P=new Float32Array(N*3), P0=null, P1=null, tStart=0, TDUR=1300;
+const dummy=new THREE.Object3D();
+function applyPositions(){
+  for(let i=0;i<D0;i++) absMeshes[i].position.set(P[i*3],P[i*3+1],P[i*3+2]);
+  for(let i=0;i<docs.length;i++){const n=D0+i; dummy.position.set(P[n*3],P[n*3+1],P[n*3+2]); dummy.scale.setScalar(radius[n]*(docScale[i]||1)*(hoverN===n?1.35:1)); dummy.updateMatrix(); docMesh.setMatrixAt(i,dummy.matrix);}
+  docMesh.instanceMatrix.needsUpdate=true;
+  [linesC,linesS,linesR,linesH].forEach(l=>{
+    const e=l.userData.edges; if(!e.length) return; const a=l.geometry.attributes.position.array;
+    for(let i=0;i<e.length;i++){const p=e[i][0]*3,q=e[i][1]*3; a[i*6]=P[p];a[i*6+1]=P[p+1];a[i*6+2]=P[p+2];a[i*6+3]=P[q];a[i*6+4]=P[q+1];a[i*6+5]=P[q+2];}
+    l.geometry.attributes.position.needsUpdate=true; l.geometry.computeBoundingSphere();
+  });
+  updateRelArcs();
+}
+const docScale=new Float32Array(docs.length).fill(1);
+function setLayout(name, animate=true){
+  S.layout=name;
+  if(!layouts[name]) layouts[name]= name==='net'?layoutNet(): name==='spiral'?layoutSpiral(): layoutCat();
+  document.querySelectorAll('#layoutSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.layout===name));
+  document.getElementById('layoutHint').textContent=(META.layoutHint&&META.layoutHint[name])||{
+    net:'概念の結びつきで引き合う配置。近くにある資料ほど同じ概念を多く扱っています。',
+    spiral: META.idPattern ? `${PRIMARY}を ID 番号順に螺旋状に並べ、後ろに日付順の資料、日付のないファイル類を続けています。上に行くほど新しくなります。` : '資料を日付順に螺旋状に並べ、日付のないものを後ろに続けています。上に行くほど新しくなります。',
+    cat:'フォルダ（分類）ごとの星団。各円盤の大きさは項目数を表します。'}[name];
+  catLabels.forEach(l=>l.el.hidden=name!=='cat');
+  if(animate && !reduced){P0=P.slice(); P1=layouts[name]; tStart=performance.now();}
+  else {P=layouts[name].slice(); applyPositions();}
+}
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- labels ---------- */
+const labelsEl=document.getElementById('labels');
+const absLabels=[];
+for(let i=0;i<D0;i++){
+  const k=nodeKind(i); const el=document.createElement('div');
+  el.className='lb '+(k==='theme'?'theme':'');
+  el.textContent= k==='theme'?themes[i].label: k==='concept'?concepts[i-NT].label:'ファイル・アプリ群';
+  labelsEl.appendChild(el); absLabels.push({el,node:i});
+}
+const catLabels=catOrder.map(c=>{const el=document.createElement('div');el.className='lb cat';el.textContent=`${c}  ${cats[c]}`;el.hidden=true;labelsEl.appendChild(el);return {el,cat:c};});
+let docLabels=[];
+function setDocLabels(ids, selId){
+  docLabels.forEach(l=>l.el.remove());
+  docLabels=ids.slice(0,24).map(i=>{const el=document.createElement('div');el.className='lb doc'+(i===selId?' sel':'');el.textContent=docs[i].title;labelsEl.appendChild(el);return {el,node:D0+i};});
+}
+const v3=new THREE.Vector3();
+function placeLabel(el,x,y,z,off){
+  v3.set(x,y,z).project(camera);
+  if(v3.z>1||v3.z<-1){el.style.visibility='hidden';return;}
+  el.style.visibility='';
+  const sx=(v3.x*.5+.5)*W, sy=(-v3.y*.5+.5)*H;
+  el.style.transform=`translate(${sx+off}px,${sy-8}px)`;
+  const dist=camera.position.distanceTo(v3.set(x,y,z));
+  return dist;
+}
+// Project every label, then accept them greedily by priority so nothing overlaps.
+const cand=[];
+function proj(l,x,y,z,off,prio){
+  v3.set(x,y,z).project(camera);
+  if(v3.z>1||v3.z<-1) return;
+  const sx=(v3.x*.5+.5)*W+off, sy=(-v3.y*.5+.5)*H-8;
+  if(sx<-200||sx>W+20||sy<-20||sy>H+20) return;
+  if(l.w==null){l.w=l.el.offsetWidth||l.el.textContent.length*11; l.h=l.el.offsetHeight||16;}
+  cand.push({l,sx,sy,prio,dist:camera.position.distanceTo(v3.set(x,y,z))});
+}
+function updateLabels(){
+  cand.length=0;
+  const zoomK=360/Math.max(camera.position.distanceTo(controls.target),200);
+  for(const l of absLabels){
+    const i=l.node, k=nodeKind(i);
+    const pr = k==='theme'?1000 : k==='hub'?700 : (absDim[i]?0:300)+concepts[i-NT].df*.6;
+    proj(l,P[i*3],P[i*3+1],P[i*3+2],radius[i]*zoomK,pr);
+  }
+  if(S.layout==='cat') for(const l of catLabels){const p=catPos[l.cat]; proj(l,p[0],p[1],p[2],-20,1200);}
+  for(const l of docLabels){const i=l.node; proj(l,P[i*3],P[i*3+1],P[i*3+2],6,l.el.classList.contains('sel')?2000:800);}
+  for(const c of cand) if(c.prio<1000&&c.prio>=300&&c.prio<700) c.prio-=c.dist*.25;
+  cand.sort((a,b)=>b.prio-a.prio);
+  const acc=[]; const seen=new Set();
+  for(const c of cand){
+    const r={x:c.sx,y:c.sy,w:c.l.w,h:c.l.h}; seen.add(c.l);
+    let ok=true; for(const a of acc){ if(r.x<a.x+a.w+4&&r.x+r.w+4>a.x&&r.y<a.y+a.h&&r.y+r.h>a.y){ok=false;break;} }
+    const el=c.l.el;
+    if(!ok){ el.style.visibility='hidden'; continue; }
+    acc.push(r); el.style.visibility=''; el.style.transform=`translate(${c.sx}px,${c.sy}px)`;
+    if(c.l.node!=null && c.l.node<D0){ const i=c.l.node; el.style.opacity = absDim[i]? (i<NT?'.3':'.2') : nodeKind(i)==='concept'? String(Math.max(.4,Math.min(1,1.7-c.dist/1100))) : '1'; }
+  }
+  for(const l of absLabels) if(!seen.has(l)) l.el.style.visibility='hidden';
+  for(const l of docLabels) if(!seen.has(l)) l.el.style.visibility='hidden';
+  if(S.layout==='cat') for(const l of catLabels) if(!seen.has(l)) l.el.style.visibility='hidden';
+}
+let shiftCur=0;
+function targetShift(){
+  if(W<760) return 0;
+  const left = ctrl.classList.contains('collapsed')?0:ctrl.offsetWidth+16;
+  const right = detail.hidden?0:detail.offsetWidth+16;
+  return (left-right)/2;
+}
+function applyShift(){
+  const t=targetShift();
+  if(t===shiftCur) return;
+  shiftCur+= (t-shiftCur)*(reduced?1:.14); if(Math.abs(t-shiftCur)<.5) shiftCur=t;
+  camera.setViewOffset(W,H,-Math.round(shiftCur),0,W,H);
+}
+
+/* ---------- highlighting ---------- */
+const absDim=new Uint8Array(D0);
+const docOn=new Uint8Array(docs.length).fill(1);
+function refreshHighlight(){
+  const tmp=new THREE.Color();
+  let focusDocs=null, focusAbs=null, hEdges=[];
+  if(S.sel){
+    focusDocs=new Set(); focusAbs=new Set();
+    if(S.sel.type==='doc'){
+      const d=docs[S.sel.id]; focusDocs.add(d.id);
+      d.concepts.slice(0,6).forEach(([k])=>{focusAbs.add(NT+k); hEdges.push([D0+d.id,NT+k,TCOL[concepts[k].theme]]);});
+      d.sim.forEach(([j])=>{focusDocs.add(j); hEdges.push([D0+d.id,D0+j,ACC]);});
+      d.refs.concat(d.backrefs).forEach(j=>{focusDocs.add(j); hEdges.push([D0+d.id,D0+j,REFCOL]);});
+      if(!d.concepts.length){focusAbs.add(HUB); hEdges.push([D0+d.id,HUB,TCOL.none]);}
+    } else if(S.sel.type==='concept'){
+      const k=S.sel.id; focusAbs.add(NT+k); focusAbs.add(themeIdx[concepts[k].theme]);
+      concepts[k].docs.slice(0,60).forEach(([i])=>{focusDocs.add(i); if(hEdges.length<60) hEdges.push([NT+k,D0+i,TCOL[concepts[k].theme]]);});
+      Object.entries(concepts[k].co).sort((a,b)=>b[1]-a[1]).slice(0,6).forEach(([o])=>focusAbs.add(NT+ +o));
+    } else if(S.sel.type==='theme'){
+      const t=S.sel.id; focusAbs.add(t);
+      concepts.forEach((c,k)=>{if(themeIdx[c.theme]===t){focusAbs.add(NT+k); hEdges.push([t,NT+k,TCOL[themes[t].id]]);}});
+      docs.forEach(d=>{if(d.theme===themes[t].id) focusDocs.add(d.id);});
+    } else if(S.sel.type==='rel'){
+      const r=RELS[S.sel.id]; r.ks.forEach(k=>focusAbs.add(NT+k));
+      r.ev.slice(0,40).forEach(([i])=>focusDocs.add(i));
+    } else if(S.sel.type==='hub'){
+      focusAbs.add(HUB); docs.forEach(d=>{if(!d.concepts.length){focusDocs.add(d.id);hEdges.push([HUB,D0+d.id,TCOL.none]);}});
+    }
+  }
+  colorRelArcs(S.sel&&S.sel.type==='rel'?S.sel.id:null, S.sel&&S.sel.type==='concept'?S.sel.id:null);
+  document.querySelectorAll('#relList button').forEach(b=>b.setAttribute('aria-pressed',!!(S.sel&&S.sel.type==='rel'&&+b.dataset.rel===S.sel.id)));
+  const filt=anyFilter();
+  docs.forEach((d,i)=>{
+    let on = isActive(d);
+    if(focusDocs) on = on && focusDocs.has(i) || (S.sel.type==='doc'&&i===S.sel.id);
+    tmp.copy(baseCol[i]); if(!on) tmp.lerp(bgCol,.86);
+    if(S.sel && S.sel.type==='doc' && i===S.sel.id) tmp.copy(accCol);
+    docMesh.setColorAt(i,tmp);
+    docOn[i]=on?1:0;
+    docScale[i]= (S.sel&&S.sel.type==='doc'&&i===S.sel.id)?1.9 : on&&(filt||focusDocs)?1.25:1;
+  });
+  docMesh.instanceColor.needsUpdate=true;
+  // abstract nodes
+  let relevant=null;
+  if(filt){ relevant=new Set(); docs.forEach(d=>{ if(isActive(d)) d.concepts.slice(0,3).forEach(([k])=>relevant.add(NT+k)); }); if(S.concept!=null) relevant.add(NT+S.concept);
+    concepts.forEach((c,k)=>{if(relevant.has(NT+k)) relevant.add(themeIdx[c.theme]);}); relevant.add(HUB); }
+  for(let i=0;i<D0;i++){
+    let on=true; if(relevant) on=relevant.has(i); if(focusAbs) on=focusAbs.has(i);
+    absDim[i]=on?0:1; absMeshes[i].material.opacity=on?1:.16; absMeshes[i].children[0].material.opacity=on?(i<NT?.55:.32):.04;
+  }
+  const lineOp = (S.sel||filt)?.06:.16;
+  linesC.material.opacity=lineOp;
+  // highlight edges
+  linesH.userData.edges=hEdges;
+  linesH.geometry.setAttribute('position',new THREE.BufferAttribute(new Float32Array(hEdges.length*6),3));
+  {const ca=new Float32Array(hEdges.length*6), c=new THREE.Color(); hEdges.forEach((e,i)=>{c.set(e[2]||ACC); ca.set([c.r,c.g,c.b,c.r,c.g,c.b],i*6);}); linesH.geometry.setAttribute('color',new THREE.BufferAttribute(ca,3));}
+  // doc labels
+  let lab=[];
+  if(S.sel&&S.sel.type==='doc'){lab=[S.sel.id].concat(docs[S.sel.id].sim.map(x=>x[0]), docs[S.sel.id].refs, docs[S.sel.id].backrefs);}
+  else if(S.sel&&S.sel.type==='concept'){lab=concepts[S.sel.id].docs.slice(0,10).map(x=>x[0]);}
+  else if(S.sel&&S.sel.type==='rel'){lab=RELS[S.sel.id].ev.slice(0,8).map(x=>x[0]);}
+  else if(filt){const act=docs.filter(isActive); if(act.length<=24) lab=act.map(d=>d.id);}
+  setDocLabels([...new Set(lab)], S.sel&&S.sel.type==='doc'?S.sel.id:null);
+  applyPositions();
+}
+
+/* ---------- camera fly ---------- */
+let fly=null;
+function flyTo(node, dist){
+  const p= typeof node==='object'? node : new THREE.Vector3(P[node*3],P[node*3+1],P[node*3+2]);
+  const dir=camera.position.clone().sub(controls.target).normalize();
+  fly={t0:performance.now(), fromT:controls.target.clone(), toT:p, fromC:camera.position.clone(), toC:p.clone().add(dir.multiplyScalar(dist||260))};
+  controls.autoRotate=false;
+}
+function flyHome(){fly={t0:performance.now(),fromT:controls.target.clone(),toT:new THREE.Vector3(),fromC:camera.position.clone(),toC:camera.position.clone().sub(controls.target).normalize().multiplyScalar(homeDist())};}
+
+/* ---------- picking ---------- */
+const tip=document.getElementById('tip');
+// Pick the node nearest the pointer on screen: a ball counts as hit if the pointer is within its drawn radius
+// plus a small margin (larger for touch). Dimmed nodes get a smaller margin so highlighted ones win.
+const pv=new THREE.Vector3();
+function pick(ev){
+  const r=canvas.getBoundingClientRect(); const mx=ev.clientX-r.left, my=ev.clientY-r.top;
+  const tol = ev.pointerType==='touch'?20:8;
+  const f=(H/2)/Math.tan(camera.fov*Math.PI/360);
+  let best=null, bs=1e9;
+  for(let i=0;i<N;i++){
+    const x=P[i*3],y=P[i*3+1],z=P[i*3+2];
+    pv.set(x,y,z).project(camera); if(pv.z>1||pv.z<-1) continue;
+    const sx=(pv.x*.5+.5)*W, sy=(-pv.y*.5+.5)*H, d=Math.hypot(sx-mx,sy-my);
+    if(d>140) continue;
+    const dist=camera.position.distanceTo(pv.set(x,y,z));
+    const pr=radius[i]*(i>=D0?(docScale[i-D0]||1):1)*f/dist;
+    const dim= i>=D0 ? !docOn[i-D0] : !!absDim[i];
+    if(d>pr+tol*(dim?.35:1)) continue;
+    const score=Math.max(0,d-pr)+dist*.004+(dim?6:0);
+    if(score<bs){bs=score;best=i;}
+  }
+  return best;
+}
+let hoverN=null;
+function setHover(n){
+  if(n===hoverN) return;
+  const prev=hoverN; hoverN=n;
+  [prev,n].forEach(i=>{ if(i==null) return;
+    const m= i===n?1.35:1;
+    if(i>=D0){ const k=i-D0; dummy.position.set(P[i*3],P[i*3+1],P[i*3+2]); dummy.scale.setScalar(radius[i]*(docScale[k]||1)*m); dummy.updateMatrix(); docMesh.setMatrixAt(k,dummy.matrix); docMesh.instanceMatrix.needsUpdate=true; }
+    else absMeshes[i].scale.setScalar(radius[i]*m);
+  });
+}
+let hoverT=0, down=null;
+canvas.addEventListener('pointermove',ev=>{
+  if(down) return;
+  const now=performance.now(); if(now-hoverT<40) return; hoverT=now;
+  const n=pick(ev); setHover(n);
+  if(n==null){tip.hidden=true; canvas.style.cursor=''; return;}
+  canvas.style.cursor='pointer';
+  const k=nodeKind(n);
+  let html='';
+  if(k==='doc'){const d=docs[n-D0]; html=`<div class="k">${esc(d.cat)}${d.src?' · '+esc(d.src):''}${d.date?' · '+esc(d.date):''}</div>${esc(d.title)}${d.sum?`<div class="s">${esc(d.sum)}</div>`:''}`;}
+  else if(k==='concept'){const c=concepts[n-NT]; html=`<div class="k">概念 · ${c.df} 資料</div>${esc(c.label)}`;}
+  else if(k==='theme'){html=`<div class="k">領域</div>${esc(themes[n].label)}`;}
+  else html='<div class="k">本文を持たないファイル</div>ファイル・アプリ群';
+  tip.innerHTML=html; tip.hidden=false;
+  const r=canvas.getBoundingClientRect(); let x=ev.clientX-r.left+14, y=ev.clientY-r.top+14;
+  if(x>r.width-310) x=ev.clientX-r.left-300; tip.style.left=x+'px'; tip.style.top=y+'px';
+});
+canvas.addEventListener('pointerleave',()=>{tip.hidden=true; setHover(null);});
+canvas.addEventListener('pointerdown',ev=>{down=[ev.clientX,ev.clientY]; controls.autoRotate=false; tip.hidden=true;});
+canvas.addEventListener('pointerup',ev=>{
+  if(!down) return; const moved=Math.hypot(ev.clientX-down[0],ev.clientY-down[1]); down=null;
+  if(moved>(ev.pointerType==='touch'?10:5)) return;
+  const n=pick(ev); if(n==null){ if(S.sel){select(null);} return; }
+  const k=nodeKind(n);
+  if(k==='doc') select({type:'doc',id:n-D0},true);
+  else if(k==='concept') select({type:'concept',id:n-NT},true);
+  else if(k==='theme') select({type:'theme',id:n},true);
+  else select({type:'hub',id:0},true);
+});
+
+/* ---------- selection & detail panel ---------- */
+const detail=document.getElementById('detail'), dBody=document.getElementById('dBody'), dKicker=document.getElementById('dKicker');
+function relCenter(r){const v=new THREE.Vector3(); r.ks.forEach(k=>v.add(new THREE.Vector3(P[(NT+k)*3],P[(NT+k)*3+1],P[(NT+k)*3+2]))); return v.multiplyScalar(1/r.ks.length);}
+function nodeOf(sel){return sel.type==='rel'?relCenter(RELS[sel.id]): sel.type==='doc'?D0+sel.id: sel.type==='concept'?NT+sel.id: sel.type==='theme'?sel.id:HUB;}
+function select(sel, fly_){
+  S.sel=sel;
+  if(!sel){detail.hidden=true; detail.classList.remove('tall'); refreshHighlight(); markRows(); return;}
+  renderDetail(); detail.hidden=false; dBody.scrollTop=0;
+  refreshHighlight(); markRows();
+  if(fly_ && S.view==='map') flyTo(nodeOf(sel), sel.type==='doc'?230:sel.type==='concept'?380:sel.type==='rel'?560:520);
+}
+const docBtn=(i,extra)=>{const d=docs[i]; return `<button data-doc="${i}"><span class="dot" style="background:${TCOL[d.theme||'none']};margin-top:5px"></span><span class="t">${esc(d.title)}<br><span class="mono" style="color:var(--muted)">${esc(d.src||d.name)}${d.date?' · '+d.date:''}</span></span>${extra!=null?`<span class="s">${extra}</span>`:''}</button>`;};
+const relBtn=ri=>{const r=RELS[ri]; return `<button data-rel="${ri}" aria-pressed="false"><span class="rs" style="background:${RT[r.type].col}"></span><span>${esc(r.title)}</span></button>`;};
+const conChip=(k,w)=>`<button class="chip" data-concept="${k}"><span class="dot" style="background:${TCOL[concepts[k].theme]}"></span>${esc(concepts[k].label)}${w!=null?`<span class="w">${w}</span>`:''}</button>`;
+function fmtSize(d){ if(d.chars) return d.chars>=1000?(d.chars/1000).toFixed(1)+'k字':d.chars+'字'; const b=d.size; return b>1e6?(b/1e6).toFixed(1)+'MB':b>1e3?Math.round(b/1e3)+'KB':b+'B'; }
+const reEsc=x=>x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+function hl(html){ if(!S.qt||!S.qt.length) return html; let out=html; for(const t of S.qt){ if(t.length<1) continue; out=out.replace(new RegExp('('+reEsc(esc(t))+')(?![^<]*>)','gi'),'<mark>$1</mark>'); } return out; }
+const fmt=x=>hl(esc(x)).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+const plainTxt=bs=>bs.filter(b=>b[0]!=='yt').map(b=>Array.isArray(b[1])?b[1].join(' '):b[1]).join(' ').replace(/\*\*/g,'');
+const ytCard=(id,label)=>`<a class="ytcard" href="https://www.youtube.com/watch?v=${esc(id)}" target="_blank" rel="noopener"><span class="yp" aria-hidden="true">▶</span><span><b>${label||'YouTube で聴く'}</b><span class="yid">youtu.be/${esc(id)}</span></span><span class="yx">↗</span></a>`;
+const ytSection=d=> d.nyt&&d.nyt.length ? `<div><div class="sec-h">${esc(CL)} に添えた動画</div><div class="ytrow">${d.nyt.map((id,i)=>ytCard(id, d.nyt.length>1?`YouTube で聴く（${i+1}）`:'YouTube で聴く')).join('')}</div></div>` : '';
+function renderBlocks(bs, opt){
+  let h='', inList=false, inTbl=false, hn=0;
+  for(const [t,x] of bs){
+    if(t==='li'){ if(inTbl){h+='</table></div>';inTbl=false;} if(!inList){h+='<ul>';inList=true;} h+=`<li>${fmt(x)}</li>`; continue; }
+    if(inList){h+='</ul>';inList=false;}
+    if(t==='tr'){ if(!inTbl){h+='<div class="tbl-x"><table>';inTbl=true;} h+='<tr>'+x.map(c=>`<td>${fmt(c)}</td>`).join('')+'</tr>'; continue; }
+    if(inTbl){h+='</table></div>';inTbl=false;}
+    if(t==='h') h+=`<h4 id="${opt&&opt.ids?'rh'+(hn++):''}">${fmt(x)}</h4>`;
+    else if(t==='p') h+=`<p>${fmt(x)}</p>`;
+    else if(t==='flow') h+= /^[│├└┌┐┘┤┬┴┼]/.test(x) ? `<p class="flow tree">${fmt(x)}</p>` : `<p class="flow">${fmt(x)}</p>`;
+    else if(t==='yt') h+=ytCard(x);
+    else if(t==='more') h+= opt&&opt.preview ? '<p class="more">……続きは「全文を読む」で</p>' : '<p class="more">……（続きは元ファイルで）</p>';
+  }
+  if(inList) h+='</ul>'; if(inTbl) h+='</table></div>';
+  return h.replace(/ id=""/g,'');
+}
+function renderDetail(){
+  const s=S.sel; let h='';
+  if(s.type==='doc'){
+    const d=docs[s.id];
+    dKicker.textContent=`${d.cat}${d.src?' · '+d.src:''}`;
+    const drels=RELS.filter(r=>r.ev.slice(0,40).some(x=>x[0]===d.id));
+    h+=`<h2 class="d-title">${esc(d.title)}</h2>`;
+    if(d.sum) h+=`<p class="d-sum">${hl(esc(d.sum))}</p>`;
+    h+=`<dl class="meta"><dt>パス</dt><dd class="mono">${esc(d.path)}</dd>`;
+    if(d.date) h+=`<dt>日付</dt><dd class="mono">${d.date}${d.date_src?` <span style="color:var(--muted)">（${esc(CL)} 公開日）</span>`:''}</dd>`;
+    if(d.raw_title) h+=`<dt>元の書き出し</dt><dd>${esc(d.raw_title)}</dd>`;
+    if(d.orig) h+=`<dt>元ファイル</dt><dd class="mono">${esc(d.orig)}</dd>`;
+    h+=`<dt>分量</dt><dd class="mono">${fmtSize(d)}</dd>`;
+    if(d.url && !d.note) h+=`<dt>公開先</dt><dd><a href="${esc(d.url)}" target="_blank" rel="noopener">${(()=>{try{return new URL(d.url).hostname.replace(/^www\./,'')+' で読む'}catch(e){return 'リンクを開く'}})()} ↗</a></dd>`;
+    if(d.note) h+=`<dt>${esc(CL)}</dt><dd>${esc(d.note.title)}</dd>`;
+    if(d.copies&&d.copies.length) h+=`<dt>同じ内容</dt><dd class="mono">${d.copies.map(esc).join('<br>')}</dd>`;
+    h+=`</dl>`;
+    {const fl=[];
+      if(d.note) fl.push(`<a class="flag note" href="${esc(d.note.url||'#')}" target="_blank" rel="noopener">${esc(CL)} で読む · ${esc(d.note.date)}${d.note.fuzzy?' · タイトル類似で推定':''} ↗</a>`);
+      (d.notes_more||[]).forEach(n=>fl.push(`<a class="flag note" href="${esc(n.url||'#')}" target="_blank" rel="noopener">関連 ${esc(CL)} · ${esc(n.date)} ↗</a>`));
+      if(d.yt) fl.push(`<span class="flag">▶ YouTube リンク ${d.yt}</span>`);
+      if(d.cut) fl.push('<span class="flag warn">末尾が途中で切れている可能性</span>');
+      if(d.chat) fl.push('<span class="flag" title="冒頭の「了解」「以下は…まとめた」などを表示から外しています">AI対話の前置きを除いて表示</span>');
+      if(fl.length) h+=`<div class="flags">${fl.join('')}</div>`;}
+    h+=`<div class="actions">${d.full?`<button class="btn primary" data-read="${d.id}">全文を読む</button>`:''}${S.view!=='map'?'<button class="btn" data-go="map">マップで位置を見る</button>':''}<button class="btn" data-copy="${esc(d.path)}">パスをコピー</button></div>`;
+    if(d.concepts.length){
+      const mx=d.concepts[0][1];
+      h+=`<div><div class="sec-h"><span class="sw" style="background:linear-gradient(90deg,var(--t-0),var(--t-2),var(--t-3))"></span>主要概念（重み順・線は概念の色）</div><div class="bars">${d.concepts.map(([k,w,n])=>`<button data-concept="${k}"><span>${esc(concepts[k].label)}</span><i style="width:${Math.max(6,w/mx*80)}px;background:${TCOL[concepts[k].theme]}"></i><span class="n">${n}回</span></button>`).join('')}</div></div>`;
+    }
+    if(drels.length) h+=`<div><div class="sec-h">根拠資料になっている整理済みの関係</div><div class="rlist">${drels.map(r=>relBtn(r.id)).join('')}</div></div>`;
+    if(d.kw&&d.kw.length) h+=`<div><div class="sec-h">特徴語</div><div class="kw">${d.kw.map(esc).join('　')}</div></div>`;
+    if(d.heads&&d.heads.length>1) h+=`<div><div class="sec-h">見出し</div><ol class="heads">${d.heads.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div>`;
+    h+=ytSection(d);
+    if(d.blocks&&d.blocks.length) h+=`<div><div class="sec-h">本文の冒頭（読みやすく整形）</div><div class="preview${d.full?' clickable':''}" ${d.full?`data-read="${d.id}" title="クリックで全文を表示"`:''}>${renderBlocks(d.blocks,{preview:d.full})}</div></div>`;
+    else if(d.text) h+=`<div><div class="sec-h">内容</div><div class="preview"><p>${esc(d.text)}</p></div></div>`;
+    if(d.sim.length) h+=`<div><div class="sec-h"><span class="sw" style="background:var(--accent)"></span>本文が近い資料</div><div class="rel">${d.sim.map(([j,v])=>docBtn(j,Math.round(v*100)+'%')).join('')}</div></div>`;
+    if(d.refs.length) h+=`<div><div class="sec-h"><span class="sw" style="background:var(--t-1)"></span>この資料が参照する ID（${d.refs.length}）</div><div class="rel">${d.refs.slice(0,30).map(j=>docBtn(j)).join('')}</div></div>`;
+    if(d.backrefs.length) h+=`<div><div class="sec-h"><span class="sw" style="background:var(--t-1)"></span>この資料を参照している（${d.backrefs.length}）</div><div class="rel">${d.backrefs.slice(0,30).map(j=>docBtn(j)).join('')}</div></div>`;
+  } else if(s.type==='concept'){
+    const c=concepts[s.id], t=themes[themeIdx[c.theme]];
+    dKicker.textContent=`概念 · ${t.label}`;
+    h+=`<h2 class="d-title">${esc(c.label)}</h2>`;
+    h+=`<dl class="meta"><dt>登場する資料</dt><dd class="mono">${c.df}</dd><dt>主要概念として</dt><dd class="mono">${c.docs.length}</dd></dl>`;
+    h+=`<div class="actions"><button class="btn primary" data-filter-concept="${s.id}">この概念で絞り込む</button>${S.view!=='list'?'<button class="btn" data-go="list" data-filter-concept="'+s.id+'">一覧で見る</button>':''}</div>`;
+    const co=Object.entries(c.co).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    if(co.length) h+=`<div><div class="sec-h">一緒に出てくる概念</div><div class="chips">${co.map(([k,n])=>conChip(+k,n)).join('')}</div></div>`;
+    if(c.rels.length) h+=`<div><div class="sec-h">この概念が出てくる整理済みの関係</div><div class="rlist">${c.rels.map(relBtn).join('')}</div></div>`;
+    h+=`<div><div class="sec-h">この概念を濃く扱う資料</div><div class="rel">${c.docs.slice(0,25).map(([i,w,n])=>docBtn(i,n+'回')).join('')}</div></div>`;
+  } else if(s.type==='theme'){
+    const t=themes[s.id], cs=concepts.map((c,k)=>[c,k]).filter(([c])=>c.theme===t.id).sort((a,b)=>b[0].df-a[0].df);
+    dKicker.textContent='領域';
+    h+=`<h2 class="d-title"><span class="dot" style="background:${TCOL[t.id]};width:12px;height:12px;margin-right:8px"></span>${esc(t.label)}</h2>`;
+    h+=`<dl class="meta"><dt>概念</dt><dd class="mono">${cs.length}</dd><dt>この色の資料</dt><dd class="mono">${themeCount[t.id]||0}</dd></dl>`;
+    h+=`<div class="actions"><button class="btn primary" data-filter-theme="${t.id}">この領域で絞り込む</button></div>`;
+    const mx=Math.max(...cs.map(x=>x[0].df));
+    h+=`<div><div class="sec-h">概念（登場資料数）</div><div class="bars">${cs.map(([c,k])=>`<button data-concept="${k}"><span>${esc(c.label)}</span><i style="width:${Math.max(6,c.df/mx*80)}px;background:${TCOL[t.id]}"></i><span class="n">${c.df}</span></button>`).join('')}</div></div>`;
+  } else if(s.type==='rel'){
+    const r=RELS[s.id];
+    dKicker.innerHTML=`<span class="rtype"><span class="rs" style="display:inline-block;width:14px;height:2px;background:${RT[r.type].col}"></span>${RT[r.type].label}</span>`;
+    h+=`<h2 class="d-title">${esc(r.title)}</h2>`;
+    h+=`<p class="preview" style="white-space:normal">${esc(r.desc)}</p>`;
+    h+=`<dl class="meta"><dt>出典</dt><dd class="mono">${esc(r.src)}</dd></dl>`;
+    h+=`<div><div class="sec-h">関わる概念</div><div class="chips">${r.ks.map(k=>conChip(k)).join('')}</div></div>`;
+    h+=`<div><div class="sec-h">根拠になりそうな資料（概念を 2 つ以上含む · ${r.ev.length} 件）</div><div class="rel">${r.ev.slice(0,30).map(([i,n])=>docBtn(i,n+'概念')).join('')}</div></div>`;
+  } else {
+    dKicker.textContent='ファイル群';
+    const ds=docs.filter(d=>!d.concepts.length);
+    h+=`<h2 class="d-title">ファイル・アプリ群</h2><p class="hint">本文テキストを持たない、または概念が拾えなかった項目です（JSON データ、スクリプト、zip、画像、バックアップなど）。</p>`;
+    h+=`<div class="rel">${ds.map(d=>docBtn(d.id,fmtSize(d))).join('')}</div>`;
+  }
+  dBody.innerHTML=h;
+}
+document.getElementById('dClose').onclick=()=>select(null);
+document.addEventListener('click',ev=>{
+  const b=ev.target.closest('[data-doc],[data-concept],[data-go],[data-filter-concept],[data-filter-theme],[data-copy],[data-cat],[data-rel],[data-read]');
+  if(!b || b.closest('#stage')) return;
+  if(b.dataset.read!=null){ openReader(+b.dataset.read); return; }
+  if(b.dataset.copy!=null){ const txt=b.dataset.copy; (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>{b.textContent='コピーしました';},()=>{b.textContent=txt;}); return; }
+  if(b.dataset.filterConcept!=null){ S.concept=+b.dataset.filterConcept; S.theme=''; onFilters(); }
+  if(b.dataset.filterTheme!=null){ S.theme=b.dataset.filterTheme; onFilters(); }
+  if(b.dataset.cat!=null){ S.cat=b.dataset.cat; onFilters(); setView('list'); return; }
+  if(b.dataset.go){ setView(b.dataset.go); if(b.dataset.go==='map'&&S.sel) flyTo(nodeOf(S.sel), S.sel.type==='doc'?230:380); return; }
+  if(b.dataset.rel!=null){ const id=+b.dataset.rel; if(S.sel&&S.sel.type==='rel'&&S.sel.id===id&&b.closest('#relList')) select(null); else select({type:'rel',id},true); return; }
+  if(b.dataset.doc!=null) select({type:'doc',id:+b.dataset.doc},true);
+  else if(b.dataset.concept!=null && b.dataset.filterConcept==null) select({type:'concept',id:+b.dataset.concept},true);
+});
+
+/* ---------- full text (lazy) & reader ---------- */
+let TEXTS=null; try{const t=(document.getElementById('texts').textContent||'').trim(); if(t.charAt(0)==='{') TEXTS=JSON.parse(t);}catch(e){}
+const bundleP={};
+function getFull(id){
+  if(TEXTS) return Promise.resolve(TEXTS[id]||null);
+  const g=Math.floor(id/40);
+  if(!bundleP[g]) bundleP[g]=fetch(`texts/t${g}.json`).then(r=>{if(!r.ok) throw new Error('HTTP '+r.status); return r.json();}).catch(e=>{delete bundleP[g]; throw e;});
+  return bundleP[g].then(m=>m[id]||null);
+}
+let fullState=0; // 0 none, 1 loading, 2 ready
+function loadAllTexts(){
+  if(fullState) return; fullState=1; renderList();
+  const ids=docs.filter(d=>d.full).map(d=>d.id);
+  Promise.all(ids.map(id=>getFull(id).then(bs=>{ if(bs){ const d=docs[id]; d.fullText=plainTxt(bs); d.hay+=' '+d.fullText.toLowerCase(); } })))
+    .then(()=>{fullState=2; onFilters();}).catch(()=>{fullState=0; renderList();});
+}
+const reader=document.getElementById('reader'), rText=document.getElementById('rText'), rToc=document.getElementById('rToc');
+let readerLast=null;
+function openReader(id){
+  const d=docs[id]; readerLast=document.activeElement;
+  document.getElementById('rKicker').textContent=`${d.cat}${d.src?' · '+d.src:''}${d.date?' · '+d.date:''}`;
+  document.getElementById('rTitle').textContent=d.title;
+  const fl=[];
+  if(d.note) fl.push(`<a class="flag note" href="${esc(d.note.url||'#')}" target="_blank" rel="noopener">${esc(CL)} で読む · ${esc(d.note.date)}${d.note.fuzzy?' · タイトル類似で推定':''} ↗</a>`);
+  if(d.cut) fl.push('<span class="flag warn">末尾が途中で切れている可能性</span>');
+  if(d.chat) fl.push('<span class="flag">AI対話の前置きを除いて表示</span>');
+  document.getElementById('rFlags').innerHTML=fl.join('')+(d.nyt&&d.nyt.length?`<div class="ytrow" style="width:100%;margin-top:6px">${d.nyt.map((id,i)=>ytCard(id, d.nyt.length>1?`関連動画（${i+1}）`:'関連動画を YouTube で見る')).join('')}</div>`:'');
+  document.getElementById('rNote').textContent=`元ファイル: ${d.path}　／　表示用に段落・見出し・箇条書きを整形しています。原文の改行や記号は元ファイルで確認できます。`;
+  rText.innerHTML='<p class="hint">読み込んでいます…</p>'; rToc.hidden=true;
+  reader.hidden=false; document.getElementById('rScroll').scrollTop=0; document.getElementById('rClose').focus();
+  getFull(id).then(bs=>{
+    if(!bs){ rText.innerHTML=renderBlocks(d.blocks||[]); return; }
+    rText.innerHTML=renderBlocks(bs,{ids:true});
+    const hs=bs.filter(b=>b[0]==='h');
+    if(hs.length>=4){ rToc.innerHTML='<option value="">見出しへ移動…</option>'+hs.map((b,i)=>`<option value="rh${i}">${esc(b[1].replace(/\*\*/g,'').slice(0,40))}</option>`).join(''); rToc.hidden=false; }
+    const m=rText.querySelector('mark'); if(m) m.scrollIntoView({block:'center'});
+  }).catch(e=>{ rText.innerHTML=`<p class="hint">全文を読み込めませんでした（${esc(e.message)}）。冒頭のみ表示します。</p>`+renderBlocks(d.blocks||[]); });
+}
+function closeReader(){ reader.hidden=true; if(readerLast&&readerLast.focus) readerLast.focus(); }
+document.getElementById('rClose').onclick=closeReader;
+reader.addEventListener('click',ev=>{ if(ev.target===reader) closeReader(); });
+rToc.onchange=()=>{ const el=document.getElementById(rToc.value); if(el) el.scrollIntoView({block:'start',behavior:reduced?'auto':'smooth'}); rToc.value=''; };
+
+/* ---------- filters UI ---------- */
+const qEl=document.getElementById('q');
+let qT=0;
+qEl.addEventListener('keydown',ev=>{ if(ev.key==='Enter'){ ev.preventDefault(); qEl.blur(); } });
+qEl.addEventListener('input',()=>{clearTimeout(qT); qT=setTimeout(()=>{S.q=qEl.value.trim().toLowerCase(); S.qt=S.q.split(/\s+/).filter(Boolean); if(S.q) loadAllTexts(); onFilters(); if(S.sel) renderDetail();},160);});
+const catSel=document.getElementById('catSel'), lCat=document.getElementById('lCat'), lCon=document.getElementById('lCon'), lSort=document.getElementById('lSort');
+const catOpts='<option value="">すべての分類</option>'+catOrder.map(c=>`<option value="${esc(c)}">${esc(c)}（${cats[c]}）</option>`).join('');
+catSel.innerHTML=catOpts; lCat.innerHTML=catOpts;
+lCon.innerHTML='<option value="">すべての概念</option>'+themes.map(t=>`<optgroup label="${esc(t.label)}">${concepts.map((c,k)=>c.theme===t.id?`<option value="${k}">${esc(c.label)}（${c.df}）</option>`:'').join('')}</optgroup>`).join('');
+catSel.onchange=()=>{S.cat=catSel.value;onFilters();};
+lCat.onchange=()=>{S.cat=lCat.value;onFilters();};
+lCon.onchange=()=>{S.concept=lCon.value===''?null:+lCon.value;onFilters();};
+lSort.onchange=renderList;
+const lFlag=document.getElementById('lFlag'); lFlag.onchange=()=>{S.flag=lFlag.value; onFilters();};
+const legend=document.getElementById('legend');
+legend.innerHTML=themes.map((t,i)=>`<button data-theme="${t.id}" aria-pressed="false"><span class="dot" style="background:${TCOL[t.id]}"></span>${esc(t.label)}<span class="n">${themeCount[t.id]||0}</span></button>`).join('')+`<button data-theme="none" aria-pressed="false"><span class="dot" style="background:${TCOL.none}"></span>概念なし（ファイル類）<span class="n">${themeCount.none||0}</span></button>`;
+legend.addEventListener('click',ev=>{const b=ev.target.closest('button'); if(!b) return; S.theme = S.theme===b.dataset.theme?'':b.dataset.theme; onFilters();});
+const fbar=document.getElementById('fbar');
+function onFilters(){
+  catSel.value=S.cat; lCat.value=S.cat; lFlag.value=S.flag; lCon.value=S.concept==null?'':S.concept;
+  legend.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.theme===S.theme));
+  const parts=[];
+  if(S.q) parts.push(['q',`検索: ${S.q}`]);
+  if(S.cat) parts.push(['cat',`分類: ${S.cat}`]);
+  if(S.theme) parts.push(['theme',`領域: ${S.theme==='none'?'概念なし':themes[themeIdx[S.theme]].label}`]);
+  if(S.concept!=null) parts.push(['concept',`概念: ${concepts[S.concept].label}`]);
+  if(S.flag) parts.push(['flag',`状態: ${lFlag.options[lFlag.selectedIndex].text}`]);
+  const n=docs.filter(isActive).length;
+  fbar.hidden=!parts.length;
+  fbar.innerHTML=`<span class="lbl">絞り込み中 ${n} / ${docs.length}</span>`+parts.map(([k,l])=>`<span class="fchip"><span class="fl">${esc(l)}</span><button data-clear="${k}" aria-label="解除">×</button></span>`).join('')+(parts.length>1?'<button class="clear" data-clear="all">すべて解除</button>':'');
+  refreshHighlight(); renderList(); if(S.view==='time') renderTimeline(); requestAnimationFrame(resize);
+}
+fbar.addEventListener('click',ev=>{const b=ev.target.closest('[data-clear]'); if(!b) return; const k=b.dataset.clear;
+  if(k==='q'||k==='all'){S.q='';S.qt=[];qEl.value='';} if(k==='cat'||k==='all')S.cat=''; if(k==='theme'||k==='all')S.theme=''; if(k==='concept'||k==='all')S.concept=null; if(k==='flag'||k==='all')S.flag=''; onFilters();});
+
+/* ---------- list ---------- */
+const tbody=document.getElementById('tbody');
+function renderList(){
+  let rows=docs.filter(isActive);
+  const sk=lSort.value;
+  const key=d=>d.srcn!=null&&d.cat===PRIMARY?d.srcn:9999;
+  rows.sort(sk==='date'?(a,b)=>((b.date||'')>(a.date||'')?1:(b.date||'')<(a.date||'')?-1:key(b)-key(a)):
+            sk==='title'?(a,b)=>a.title.localeCompare(b.title,'ja'):
+            sk==='size'?(a,b)=>((b.chars||b.size/3)-(a.chars||a.size/3)):
+            sk==='cat'?(a,b)=>catOrder.indexOf(a.cat)-catOrder.indexOf(b.cat)||key(a)-key(b):
+            (a,b)=>key(a)-key(b)||a.path.localeCompare(b.path));
+  document.getElementById('lCount').textContent=`${rows.length} 件`+(S.q? (fullState===1?' · 全文を読み込み中…':fullState===2?' · 全文から検索':' · 冒頭から検索'):'');
+  tbody.innerHTML=rows.map(d=>`<tr class="row" data-row="${d.id}" title="${esc(d.path)}"><td><span class="tag">${esc(d.cat)}</span>${d.src?`<div class="pp" style="margin-top:4px">${d.src}</div>`:''}</td><td><div class="tt">${esc(d.title)}${d.note?'<span class="ntag">note</span>':''}${d.cut?'<span class="wtag">途中切れ?</span>':''}</div><div class="ex">${rowSub(d)}</div></td><td class="num">${d.date||'—'}</td><td><div class="mini">${d.concepts.slice(0,4).map(([k])=>`<span style="border-color:${TCOL[concepts[k].theme]}">${esc(concepts[k].label)}</span>`).join('')}</div></td><td class="num">${fmtSize(d)}</td></tr>`).join('');
+  markRows();
+}
+function rowSub(d){
+  if(S.qt&&S.qt.length){
+    const src=d.fullText||d.text||''; const low=src.toLowerCase(); let at=-1;
+    for(const t of S.qt){ const i=low.indexOf(t); if(i>=0&&(at<0||i<at)) at=i; }
+    if(at>=0){ const a=Math.max(0,at-34), b=Math.min(src.length,at+60); return (a>0?'…':'')+hl(esc(src.slice(a,b)))+(b<src.length?'…':''); }
+  }
+  if(d.sum) return hl(esc(d.sum));
+  const p=(d.blocks||[]).find(b=>b[0]==='p'); return p? esc(p[1].replace(/\*\*/g,'').slice(0,80))+(p[1].length>80?'…':'') : `<span class="mono">${esc(d.path)}</span>`;
+}
+function markRows(){ tbody.querySelectorAll('tr.on').forEach(r=>r.classList.remove('on')); if(S.sel&&S.sel.type==='doc'){const r=tbody.querySelector(`tr[data-row="${S.sel.id}"]`); if(r) r.classList.add('on');} }
+tbody.addEventListener('click',ev=>{const r=ev.target.closest('tr[data-row]'); if(r) select({type:'doc',id:+r.dataset.row},false);});
+
+/* ---------- timeline ---------- */
+const NOTE_ONLY=(DATA.notes_unmatched||[]).filter(n=>n.date).map(n=>({...n, low:(n.title||'').toLowerCase()}));
+const TL_MONTHS=(()=>{ const ms=docs.filter(d=>d.date).map(d=>d.date.slice(0,7)).concat(NOTE_ONLY.map(n=>n.date.slice(0,7))).sort();
+  if(!ms.length) return []; const out=[]; let [y,m]=ms[0].split('-').map(Number); const [y1,m1]=ms[ms.length-1].split('-').map(Number);
+  while(y<y1||(y===y1&&m<=m1)){ out.push(`${y}-${String(m).padStart(2,'0')}`); if(++m>12){m=1;y++;} } return out; })();
+let tlMonth=null;
+const tlEl={intro:document.getElementById('tlIntro'),legend:document.getElementById('tlLegend'),chart:document.getElementById('tlChart'),heat:document.getElementById('tlHeat'),mh:document.getElementById('tlMonthH'),month:document.getElementById('tlMonth')};
+function tlItems(){
+  const ds=docs.filter(d=>d.date&&isActive(d));
+  const ns= (!S.cat && !S.theme && S.concept==null && !S.flag) ? NOTE_ONLY.filter(n=>!S.qt.length||S.qt.every(t=>n.low.includes(t))) : [];
+  return {ds,ns};
+}
+function renderTimeline(){
+  if(!TL_MONTHS.length){ tlEl.intro.textContent='日付の分かる資料がありません。'; return; }
+  const {ds,ns}=tlItems();
+  const by={}; TL_MONTHS.forEach(m=>by[m]={docs:[],notes:[]});
+  ds.forEach(d=>{const m=d.date.slice(0,7); if(by[m]) by[m].docs.push(d);});
+  ns.forEach(n=>{const m=n.date.slice(0,7); if(by[m]) by[m].notes.push(n);});
+  const allDated=docs.filter(d=>d.date).length, viaNote=docs.filter(d=>d.date_src).length, undated=docs.length-allDated;
+  tlEl.intro.innerHTML=`日付が分かる資料 <b>${allDated}</b> 件${viaNote?`（うち ${esc(CL)} の公開日で補ったもの ${viaNote} 件）`:''}${NOTE_ONLY.length?`と、本文がない ${esc(CL)} 記事 <b>${NOTE_ONLY.length}</b> 本`:''}を月ごとに並べています。日付の分からない ${undated} 件はここには出ません — <a href="#" data-nodate>一覧で見る</a>。棒を選ぶとその月の中身が下に開きます。`;
+  const order=themes.map(t=>t.id).concat(['none']);
+  tlEl.legend.innerHTML=themes.map(t=>`<span><i style="background:${TCOL[t.id]}"></i>${esc(t.label)}</span>`).join('')+`<span><i style="background:${TCOL.none}"></i>概念なし</span>`+(NOTE_ONLY.length?`<span><i style="background:repeating-linear-gradient(135deg,#55626c 0 3px,#3a4650 3px 6px)"></i>${esc(CL)} のみ（本文未収録）</span>`:'');
+  const tot=m=>by[m].docs.length+by[m].notes.length;
+  const mx=Math.max(1,...TL_MONTHS.map(tot));
+  if(!tlMonth || !by[tlMonth] || !tot(tlMonth)){ const nz=TL_MONTHS.filter(m=>tot(m)); tlMonth=nz.length?nz[nz.length-1]:TL_MONTHS[TL_MONTHS.length-1]; }
+  let prevY='';
+  tlEl.chart.innerHTML=TL_MONTHS.map(m=>{
+    const b=by[m], cnt={}; b.docs.forEach(d=>{const t=d.theme||'none'; cnt[t]=(cnt[t]||0)+1;});
+    const segs=order.filter(t=>cnt[t]).map(t=>`<i style="height:${cnt[t]/mx*100}%;background:${TCOL[t]}" title="${esc(t==='none'?'概念なし':themes[themeIdx[t]].label)} ${cnt[t]}"></i>`).join('')+(b.notes.length?`<i class="nn" style="height:${b.notes.length/mx*100}%" title="note のみ ${b.notes.length}"></i>`:'');
+    const [y,mm]=m.split('-'); const yl= y!==prevY ? y : ''; prevY=y;
+    return `<button class="tl-col" data-month="${m}" aria-pressed="${m===tlMonth}" aria-label="${y}年${+mm}月 ${tot(m)}件"><span class="n">${tot(m)||''}</span><span class="stack">${segs}</span><span class="m"><b>${+mm}月</b>${yl||'&nbsp;'}</span></button>`;
+  }).join('');
+  // concept heat map
+  const cc={}; ds.forEach(d=>d.concepts.slice(0,6).forEach(([k])=>{ (cc[k]=cc[k]||{n:0,m:{}}).n++; const m=d.date.slice(0,7); cc[k].m[m]=(cc[k].m[m]||0)+1; }));
+  let top=Object.keys(cc).map(Number).sort((a,b)=>cc[b].n-cc[a].n).slice(0,18);
+  if(S.concept!=null && !top.includes(S.concept) && cc[S.concept]) top=[S.concept].concat(top.slice(0,17));
+  const hm=Math.max(1,...top.flatMap(k=>Object.values(cc[k].m)));
+  const hexA=(hex,a)=>{const h=hex.replace('#',''); const n=parseInt(h.length===3?h.split('').map(x=>x+x).join(''):h,16); return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;};
+  tlEl.heat.innerHTML= top.length ? `<thead><tr><th>概念</th>${TL_MONTHS.map(m=>`<th>${m.slice(2).replace('-','/')}</th>`).join('')}</tr></thead><tbody>`+top.map(k=>{
+    const c=concepts[k], col=TCOL[c.theme];
+    return `<tr><th><button data-tl-con="${k}" title="この概念で絞り込む"><span class="dot" style="background:${col}"></span>${esc(c.label)}</button></th>`+TL_MONTHS.map(m=>{const v=cc[k].m[m]||0; return v?`<td data-tl-cell="${m}" style="background:${hexA(col,.18+.82*Math.sqrt(v/hm))}" class="${m===tlMonth?'on':''}" title="${esc(c.label)} · ${m} · ${v} 件">${v}</td>`:`<td class="z">·</td>`;}).join('')+'</tr>';
+  }).join('')+'</tbody>' : '<tbody><tr><td class="z" style="width:auto;color:var(--muted)">この条件では概念が拾えません</td></tr></tbody>';
+  renderTlMonth(by);
+}
+function renderTlMonth(by){
+  const b=by[tlMonth]; const [y,mm]=tlMonth.split('-');
+  tlEl.mh.innerHTML=`${y}年${+mm}月<small>${b.docs.length} 資料${b.notes.length?` · ${esc(CL)} のみ ${b.notes.length} 本`:''}</small>`;
+  const items=b.docs.map(d=>({date:d.date,d})).concat(b.notes.map(n=>({date:n.date,n}))).sort((a,c)=>c.date.localeCompare(a.date));
+  tlEl.month.innerHTML= items.length ? items.map(it=>{
+    if(it.d){ const d=it.d; return `<button class="tl-item" data-doc="${d.id}"><span class="dt">${esc(d.date)}</span><span class="tt"><span class="dot" style="background:${TCOL[d.theme||'none']}"></span><span>${hl(esc(d.title))}</span></span>${d.sum?`<span class="sm">${hl(esc(d.sum))}</span>`:''}<span class="mt">${esc(d.src||d.cat)}${d.note?' · note':''}${d.date_src==='note'?' · 日付は note 公開日':''}</span></button>`; }
+    const n=it.n; return `<a class="tl-item nn" href="${esc(n.url||'#')}" target="_blank" rel="noopener"><span class="dt">${esc(n.date)}</span><span class="tt"><span class="dot" style="background:#55626c"></span><span>${hl(esc(n.title))}</span></span><span class="mt">note のみ（コーパスに本文なし）${n.yt&&n.yt.length?` · ▶ YouTube ${n.yt.length}`:''} · note で読む ↗</span></a>`;
+  }).join('') : '<p class="hint">この月には該当する資料がありません。</p>';
+}
+document.getElementById('view-time').addEventListener('click',ev=>{
+  const t=ev.target;
+  if(t.closest('[data-nodate]')){ ev.preventDefault(); S.flag='nodate'; onFilters(); setView('list'); return; }
+  const col=t.closest('[data-month]'); if(col){ tlMonth=col.dataset.month; renderTimeline(); return; }
+  const cell=t.closest('[data-tl-cell]'); if(cell){ tlMonth=cell.dataset.tlCell; renderTimeline(); tlEl.mh.scrollIntoView({behavior:'smooth',block:'start'}); return; }
+  const con=t.closest('[data-tl-con]'); if(con){ const k=+con.dataset.tlCon; S.concept= S.concept===k?null:k; S.theme=''; onFilters(); return; }
+  const doc=t.closest('[data-doc]'); if(doc){ select({type:'doc',id:+doc.dataset.doc},false); }
+});
+
+/* ---------- index ---------- */
+document.getElementById('idxGrid').innerHTML=themes.map(t=>{
+  const cs=concepts.map((c,k)=>[c,k]).filter(([c])=>c.theme===t.id).sort((a,b)=>b[0].df-a[0].df);
+  const mx=Math.max(...cs.map(x=>x[0].df));
+  return `<div class="idx-col"><h3><span class="dot" style="background:${TCOL[t.id]}"></span><button class="btn" style="border:0;background:transparent;padding:0;font:inherit;cursor:pointer" data-theme-open="${themeIdx[t.id]}">${esc(t.label)}</button><span class="n">${cs.length} 概念</span></h3><div class="bars">${cs.map(([c,k])=>`<button data-concept="${k}"><span>${esc(c.label)}</span><i style="width:${Math.max(6,c.df/mx*80)}px;background:${TCOL[t.id]}"></i><span class="n">${c.df}</span></button>`).join('')}</div></div>`;
+}).join('');
+document.getElementById('idxGrid').addEventListener('click',ev=>{const b=ev.target.closest('[data-theme-open]'); if(b) select({type:'theme',id:+b.dataset.themeOpen},false);});
+const folders={}; docs.forEach(d=>{const p=d.path.split('/'); const f=p.length>2?p.slice(0,2).join('/'):p.length>1?p[0]:META.rootLabel||'（直下）'; (folders[f]=folders[f]||[]).push(d);});
+document.getElementById('folderGrid').innerHTML=Object.entries(folders).sort((a,b)=>b[1].length-a[1].length).map(([f,ds])=>{
+  const cs={}; ds.forEach(d=>cs[d.cat]=(cs[d.cat]||0)+1);
+  return `<div class="idx-col"><h3 style="font-size:14px;font-family:var(--f-mono);font-weight:500;overflow-wrap:anywhere">${esc(f)}<span class="n">${ds.length}</span></h3><div class="chips">${Object.entries(cs).map(([c,n])=>`<button class="chip" data-cat="${esc(c)}">${esc(c)}<span class="w">${n}</span></button>`).join('')}</div></div>`;
+}).join('');
+
+/* ---------- views ---------- */
+function setView(v){
+  S.view=v;
+  document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.view===v));
+  ['map','list','time','index'].forEach(x=>document.getElementById('view-'+x).hidden=x!==v);
+  if(S.sel) renderDetail();
+  if(v==='map') requestAnimationFrame(resize);
+  if(v==='time') renderTimeline();
+  try{localStorage.setItem('atlas.view',v);}catch(e){}
+}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>setView(b.dataset.view));
+document.querySelectorAll('#layoutSeg button').forEach(b=>b.onclick=()=>{setLayout(b.dataset.layout); flyHome();});
+const lk=(id,l,key)=>{const el=document.getElementById(id); el.onchange=()=>{l.visible=el.checked;}; l.visible=el.checked;};
+lk('lkC',linesC); lk('lkS',linesS); lk('lkR',linesR); lk('lkK',linesK);
+{
+  const order=Object.keys(RT);
+  document.getElementById('relList').innerHTML=order.map(t=>`<div class="rgroup">${RT[t].label}</div>`+RELS.filter(r=>r.type===t).map(r=>relBtn(r.id)).join('')).join('');
+  const prim=docs.filter(d=>d.cat===PRIMARY), withN=prim.filter(d=>d.note).length;
+  const un=DATA.notes_unmatched||[];
+  document.getElementById('statRow').innerHTML=[
+    ...(HASCAT?[[`${withN}<span style="font-size:13px;color:var(--muted)"> / ${prim.length}</span>`,`${PRIMARY}のうち ${CL} と紐づいたもの`],
+    [docs.filter(d=>d.note&&d.note.fuzzy).length,'うちタイトル類似で推定'],
+    [un.length,`本文未収録の ${CL} 記事`]]:[]),
+    [docs.filter(d=>d.chat).length,'AI対話の前置きを除去した資料'],
+    [docs.filter(d=>d.cut).length,'末尾が途中で切れている可能性']].map(([v,l])=>`<div><b>${v}</b><span>${l}</span></div>`).join('');
+  document.getElementById('nTotal').textContent=DATA.notes_total||'';
+  document.getElementById('nUnCount').textContent=un.length+' 本';
+  document.getElementById('nUnList').innerHTML=un.map(n=>`<div style="display:flex;align-items:baseline"><a href="${esc(n.url||'#')}" target="_blank" rel="noopener" style="flex:1;min-width:0"><span class="d">${esc(n.date)}</span><span>${esc(n.title)}</span></a>${(n.yt||[]).map((id,i)=>`<a class="yl" href="https://www.youtube.com/watch?v=${esc(id)}" target="_blank" rel="noopener" title="YouTube で聴く">▶${(n.yt.length>1)?i+1:''}</a>`).join('')}</div>`).join('');
+  const cuts=docs.filter(d=>d.cut);
+  document.getElementById('cutCount').textContent=cuts.length+' 件';
+  document.getElementById('cutList').innerHTML=cuts.map(d=>docBtn(d.id)).join('')||'<p class="hint">見つかりませんでした。</p>';
+  document.getElementById('relGrid').innerHTML=RELS.map(r=>`<button class="rcard" data-rel="${r.id}"><span class="rtype"><span class="rs" style="display:inline-block;width:14px;height:2px;background:${RT[r.type].col}"></span>${RT[r.type].label}</span><span class="rt">${esc(r.title)}</span><span class="rd">${esc(r.desc)}</span><span class="rtype">根拠資料 ${r.ev.length} 件 · ${esc(r.src.split('/').pop())}</span></button>`).join('');
+}
+const ctrl=document.getElementById('ctrl'), ct=document.getElementById('ctrlToggle');
+ct.onclick=()=>{const c=ctrl.classList.toggle('collapsed'); ct.textContent=c?(innerWidth<760?'表示設定':'ひらく'):'たたむ'; ct.setAttribute('aria-expanded',!c);};
+document.getElementById('sheetHandle').onclick=()=>detail.classList.toggle('tall');
+if(innerWidth<760){ctrl.classList.add('collapsed'); ct.textContent='表示設定'; ct.setAttribute('aria-expanded','false');}
+addEventListener('keydown',ev=>{ if(ev.key==='Escape'){ if(!reader.hidden){closeReader(); return;} if(S.sel) select(null); } if(ev.key==='/'&&document.activeElement!==qEl){ev.preventDefault();qEl.focus();} });
+
+/* ---------- loop ---------- */
+let W=1,H=1;
+function resize(){const r=canvas.getBoundingClientRect(); W=Math.max(1,r.width); H=Math.max(1,r.height); renderer.setSize(W,H,false); camera.aspect=W/H; camera.setViewOffset(W,H,-Math.round(shiftCur),0,W,H);}
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{absLabels.concat(catLabels).forEach(l=>l.w=null);});
+addEventListener('resize',resize);
+const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+function frame(now){
+  requestAnimationFrame(frame);
+  if(S.view!=='map') return;
+  if(P1){ const t=Math.min(1,(now-tStart)/TDUR), e=ease(t); for(let i=0;i<P.length;i++) P[i]=P0[i]+(P1[i]-P0[i])*e; applyPositions(); if(t>=1){P=P1.slice();P1=null;} }
+  if(fly){ const t=Math.min(1,(now-fly.t0)/900), e=ease(t); controls.target.lerpVectors(fly.fromT,fly.toT,e); camera.position.lerpVectors(fly.fromC,fly.toC,e); if(t>=1) fly=null; }
+  applyShift();
+  controls.update();
+  renderer.render(scene,camera);
+  updateLabels();
+}
+resize();
+setLayout('net',false);
+S.qt=[];
+refreshHighlight(); renderList();
+camera.position.setLength(homeDist());
+try{const v=localStorage.getItem('atlas.view'); if(v&&v!=='map') setView(v);}catch(e){}
+// deep links: #list, #time, #index, #map, a document id (e.g. #SRC_276) or a path
+{const h=decodeURIComponent((location.hash||'').slice(1));
+ if(h==='list'||h==='index'||h==='map'||h==='time') setView(h);
+ else if(h){ const d=docs.find(x=>x.src===h&&x.cat===PRIMARY)||docs.find(x=>x.src===h)||docs.find(x=>x.path===h); if(d){ select({type:'doc',id:d.id},false); } }}
+requestAnimationFrame(frame);
+}
+const raw=(document.getElementById('data').textContent||'').trim();
+if(raw.charAt(0)==='{') boot(JSON.parse(raw));
+else fetch('data.json').then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }).then(boot)
+  .catch(e=>{ const ld=document.getElementById('loading'); if(ld) ld.textContent='データを読み込めませんでした（'+e.message+'）。ページを再読み込みしてください。'; });
+})();
+</script>
