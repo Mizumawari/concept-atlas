@@ -228,7 +228,7 @@ def analyze(cfg, docs, texts, log=print):
     refs = set(idrx.findall(texts[i])) if (idrx and texts[i]) else set()
     refs.discard(d.get('src'))
     d['refs'] = sorted({j for r in refs for j in byid.get(r, []) if j != i})[:40]
-  return themes, [{'id': k, 'label': c['label'], 'theme': c['theme'], 'df': int(dfc[k])} for k, c in enumerate(concepts)]
+  return themes, [{'id': k, 'label': c['label'], 'theme': c['theme'], 'df': int(dfc[k]), 'pattern': c['pattern']} for k, c in enumerate(concepts)]
 
 
 # ---------------------------------------------------------------- catalog (published articles) & summaries

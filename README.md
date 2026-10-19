@@ -24,6 +24,8 @@ AI エージェント（Claude / Codex / Antigravity / ChatGPT など）にこ�
 
 全文検索、`#list` `#time` `#index` や `#資料ID` でのリンク、スマホ表示に対応しています。
 
+同じフォルダに `jev_overlay.json`（配信ツール JEV の Atlas Bridge が書き出す）があれば、資料・概念ごとに「配信（JEV）で」欄（質問数・検証の判定と出典・配信で答えた時刻）、マップ上の検証の光、「この星について JEV に聞く」ボタンが出ます。無ければ何も出ません。
+
 ## すぐ使う
 
 ```bash

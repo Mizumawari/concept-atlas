@@ -308,6 +308,13 @@ td .mini span{font-size:11px;border-radius:999px;padding:0 7px;border:1px solid 
 }
 .sheet-handle{display:none;width:44px;height:5px;border-radius:3px;background:var(--line2);margin:8px auto 0;border:0;padding:0;cursor:pointer}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.jev-box{display:flex;flex-direction:column;gap:8px}
+.jev-box .vd{display:inline-flex;align-items:center;gap:6px;font-size:12.5px}
+.jev-box .vd i{width:9px;height:9px;border-radius:50%;display:inline-block;box-shadow:0 0 8px currentColor}
+.jev-box .jr{font-size:12.5px;line-height:1.6;color:var(--fg2);border-left:2px solid var(--line2);padding-left:8px}
+.jev-box .jr a,.jev-box .ja a{color:var(--accent)}
+.jev-box .ja{display:flex;gap:6px;flex-wrap:wrap;font-size:12px}
+.jev-box .ja a{border:1px solid var(--line2);border-radius:999px;padding:1px 8px;text-decoration:none}
 </style>
 
 <div id="app">
@@ -1031,6 +1038,58 @@ function renderBlocks(bs, opt){
   if(inList) h+='</ul>'; if(inTbl) h+='</table></div>';
   return h.replace(/ id=""/g,'');
 }
+/* ---------- Atlas Bridge: jev_overlay.json（JEV が書き出す。無ければ何も出ない） ---------- */
+const JEV={stars:{},ask:null,loaded:false};
+const JEV_COL={supported:'#8fe6b0',mostly:'#c6e88f',partial:'#ffd27a',weak:'#ff9c8a',unknown:'#a9b4c8',researched:'#a9bfff',answered:'#ffffff'};
+const jevHttps=u=>typeof u==='string'&&/^https:\/\//.test(u);
+function jevKey(sel){ return sel.type==='doc'?['doc',docs[sel.id].path,docs[sel.id].title]: sel.type==='concept'?['concept',concepts[sel.id].label,concepts[sel.id].label]: null; }
+function jevAskUrl(kind,key,title){ if(!jevHttps(JEV.ask)) return null; try{ const u=new URL(JEV.ask); u.searchParams.set('ask',kind+':'+key); u.searchParams.set('title',String(title).slice(0,80)); return u.toString(); }catch(e){ return null; } }
+function jevState(st){ return st.verdict || ((st.research||[]).length?'researched': (st.answers||[]).length?'answered':null); }
+function jevSection(sel){
+  if(!JEV.loaded||!sel) return '';
+  const k=jevKey(sel); if(!k) return '';
+  const st=JEV.stars[k[0]+':'+k[1]], ask=jevAskUrl(k[0],k[1],k[2]);
+  if(!st&&!ask) return '';
+  const key=st?jevState(st):null, col=key?JEV_COL[key]:'var(--accent)';
+  let h=`<div class="jev-box"><div class="sec-h"><span class="sw" style="background:${col}"></span>配信（JEV）で</div>`;
+  if(st){
+    const bits=[];
+    if(st.questions) bits.push(`質問 ${st.questions} 件`);
+    if(st.verdict_label) bits.push(`<span class="vd" style="color:${col}"><i></i>検証：${esc(st.verdict_label)}</span>`);
+    else if(key==='researched') bits.push(`<span class="vd" style="color:${col}"><i></i>調べた</span>`);
+    if(st.last_at) bits.push(`<span class="mono">${esc(st.last_at)}</span>`);
+    if(bits.length) h+=`<div class="ja" style="font-size:12.5px">${bits.join(' · ')}</div>`;
+    (st.research||[]).slice(0,2).forEach(r=>{
+      const src=(r.sources||[]).filter(x=>jevHttps(x&&x.url||x)).slice(0,3).map(x=>{const u=x.url||x; let host=u; try{host=new URL(u).hostname.replace(/^www\./,'');}catch(e){} return `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(x.title||host)}</a>`;}).join(' · ');
+      h+=`<div class="jr">${r.date?`<span class="mono">${esc(r.date)}</span> `:''}${r.verdict_label?`【${esc(r.verdict_label)}】`:''}${esc(r.summary||'')}${src?`<br>出典：${src}`:''}</div>`;
+    });
+    const ans=(st.answers||[]).filter(a=>jevHttps(a.url)||a.label);
+    if(ans.length) h+=`<div class="ja">配信で答えた：${ans.map(a=>jevHttps(a.url)?`<a href="${esc(a.url)}" target="_blank" rel="noopener">▶ ${esc(a.date||'')} ${esc(a.label||'')}</a>`:`<span>${esc(a.date||'')} ${esc(a.label||'')}</span>`).join('')}</div>`;
+  }
+  if(ask) h+=`<div class="actions"><a class="btn" href="${esc(ask)}" target="_blank" rel="noopener">この星について JEV に聞く ↗</a></div>`;
+  return h+'</div>';
+}
+const jevGlow=[];
+function buildJevGlow(){
+  jevGlow.forEach(g=>scene.remove(g.sp)); jevGlow.length=0;
+  const byPath={}; docs.forEach(d=>byPath[d.path]=d.id);
+  Object.values(JEV.stars).forEach(st=>{
+    const key=jevState(st); if(!key) return;
+    let n=null;
+    if(st.kind==='doc'&&byPath[st.key]!=null) n=D0+byPath[st.key];
+    else if(st.kind==='concept'){ const k=concepts.findIndex(c=>c.label===st.key); if(k>=0) n=NT+k; }
+    if(n==null) return;
+    const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:new THREE.Color(JEV_COL[key]),transparent:true,opacity:.6,depthWrite:false,blending:THREE.AdditiveBlending}));
+    sp.scale.setScalar(Math.max(6,(radius[n]||2)*7)); scene.add(sp); jevGlow.push({sp,n});
+  });
+}
+function updateJevGlow(){ for(const g of jevGlow){ const i=g.n*3; g.sp.position.set(P[i],P[i+1],P[i+2]); } }
+(typeof fetch==='function'?fetch('jev_overlay.json',{cache:'no-store'}):Promise.reject()).then(r=>r.ok?r.json():null).then(ov=>{
+  if(!ov||typeof ov!=='object') return;
+  JEV.stars=(ov.stars&&typeof ov.stars==='object')?ov.stars:{}; JEV.ask=ov.ask_url||null; JEV.loaded=true;
+  buildJevGlow(); if(S.sel) renderDetail();
+}).catch(()=>{});
+
 function renderDetail(){
   const s=S.sel; let h='';
   if(s.type==='doc'){
@@ -1101,6 +1160,7 @@ function renderDetail(){
     h+=`<h2 class="d-title">ファイル・アプリ群</h2><p class="hint">本文テキストを持たない、または概念が拾えなかった項目です（JSON データ、スクリプト、zip、画像、バックアップなど）。</p>`;
     h+=`<div class="rel">${ds.map(d=>docBtn(d.id,fmtSize(d))).join('')}</div>`;
   }
+  h+=jevSection(s);
   dBody.innerHTML=h;
 }
 document.getElementById('dClose').onclick=()=>select(null);
@@ -1349,6 +1409,7 @@ function frame(now){
   if(P1){ const t=Math.min(1,(now-tStart)/TDUR), e=ease(t); for(let i=0;i<P.length;i++) P[i]=P0[i]+(P1[i]-P0[i])*e; applyPositions(); if(t>=1){P=P1.slice();P1=null;} }
   if(fly){ const t=Math.min(1,(now-fly.t0)/900), e=ease(t); controls.target.lerpVectors(fly.fromT,fly.toT,e); camera.position.lerpVectors(fly.fromC,fly.toC,e); if(t>=1) fly=null; }
   applyShift();
+  updateJevGlow();
   controls.update();
   renderer.render(scene,camera);
   updateLabels();
