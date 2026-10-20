@@ -334,7 +334,7 @@ pattern = "PNSE|持続的非象徴"
 [[concepts]]
 label = "俺フィルター"
 theme = "con"
-pattern = "俺フィルター"
+pattern = "俺フィルター|翻訳フィルター|主語が前に出"
 
 [[concepts]]
 label = "自己物語・自己感"
@@ -474,7 +474,7 @@ pattern = "中央と辺境|辺境"
 [[concepts]]
 label = "行動開始・着手"
 theme = "prac"
-pattern = "行動開始|着手|初動|行動の立ち上が|始動|initiat"
+pattern = "行動開始|着手|初動|行動の立ち上が|始動|initiat|やる気が立た|始める直前|動き出"
 
 [[concepts]]
 label = "訓練・トレーニング"
@@ -515,6 +515,42 @@ pattern = "Neural Mantra|ニューラル|マントラ|mantra"
 label = "リズム・身体同期"
 theme = "music"
 pattern = "リズム|同期|rhythm|synchron"
+
+# 2026-10-20 追加（corpus/research_corpus/00_indexes/ADDENDUM_2026-10_note_backfill.md §5）
+[[concepts]]
+label = "評価・自己評価"
+theme = "psy"
+pattern = "自己評価|自分への評価|評価が|評価を|評価され|評価し|採点"
+
+[[concepts]]
+label = "非操作・置く"
+theme = "prac"
+pattern = "非操作|操作しない|いじらない|管理しない|置いておく|置くという|「置く」|保とうと"
+
+[[concepts]]
+label = "歓喜・多幸感"
+theme = "con"
+pattern = "歓喜|多幸|至福|ecsta|bliss"
+
+[[concepts]]
+label = "しんどさ・遮蔽"
+theme = "psy"
+pattern = "シンドサ|しんどさ|遮蔽"
+
+[[concepts]]
+label = "歩行・巡礼"
+theme = "prac"
+pattern = "遍路|巡礼|遊行|歩く瞑想|歩き続け|walking"
+
+[[concepts]]
+label = "宗教・神話史"
+theme = "life"
+pattern = "宗教|神話|アニミズム|精霊|一神教|他力|縁起|religio|myth"
+
+[[concepts]]
+label = "性・房中術"
+theme = "body"
+pattern = "房中術|性欲|性的|sexual"
 
 [[relations]]
 type = "same"
